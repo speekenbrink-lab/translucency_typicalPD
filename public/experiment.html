@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Experiment</title>
+
+    <!-- Getting all the jsPsych elements -->
+    <script src="jsPsych/jspsych.js"></script>
+    <link href="jsPsych/css/jspsych.css" rel="stylesheet" type="text/css"></link>
+    <script src="jsPsych/plugins/jspsych-html-button-response.js"></script>
+    <script src="jsPsych/plugins/jspsych-survey-text.js"></script>
+    <script src="jsPsych/plugins/jspsych-survey-likert.js"></script>
+    <!-- Getting custom plugins -->
+    <script src="js/customPlugins/jspsych-multichoice-centred.js"></script>
+    <script src="js/customPlugins/jspsych-slider-with-value.js"></script>
+    <script src="js/customPlugins/showResults.js"></script>
+
+    <!-- Getting my stylesheet -->
+    <link href="css/style.css" rel="stylesheet" type="text/css"/>
+
+    <!-- Getting jQuery -->
+    <script src="js/jquery-3.5.1.min.js"></script>
+</head>
+<body>
+    <!-- Top header with the warning message and the button to show the instructions -->
+    <header id="topHeader">
+        <div id="warningQuitMessage">CAREFUL: If you refresh or leave this page, the experiment will end and you will not receive your payment.</div>
+        <button class="jspsych-btn" id="toggleInstructionsButton" onclick = "toggleInstructionsReminder();">Show Instructions</button>
+    </header>
+
+    <!-- Element that will reveal the instructions when the button is pressed -->
+    <div id="instructionsReminder"></div>
+
+    <!-- Where the jsPsych elements will show -->
+    <div id="jspsych_target">
+        <!-- Placeholder for when participants are waiting -->
+        <h3>Please wait for another participant to join the room. This should not take long.</h3>
+    </div>
+
+    <script src="/socket.io/socket.io.js"> </script>
+    <script src="js/client.js"> </script>
+</body>
+</html>
