@@ -150,8 +150,8 @@ jsPsych.plugins['slider-with-value'] = (function() {
     var jsPsychSlider = document.getElementById("jspsych-html-slider-response-response");
     var jsPsychSliderOutput = document.getElementById("sliderOutputValue");
 
-    //Comment out the updateSlideValueOutput();, and show the uncomment the other text to have the output be the exact value of the slider instead of a % of the labels
-    updateSlideValueOutput();
+    //Comment out the updateSlideValueOutput();, and the uncomment the other text to have the output be the exact value of the slider instead of a % of the labels
+    updateSlideValueOutput(); //Give it a first update
     jsPsychSlider.oninput = function() {
         //When the slider changes value, update the value output:
         updateSlideValueOutput();
@@ -159,34 +159,12 @@ jsPsych.plugins['slider-with-value'] = (function() {
     }
 
     function updateSlideValueOutput(){
-        var slideOutputValue;
-        if (trial.labels.length === 3) {
-            if(jsPsychSlider.value == trial.max/2){
-                //If middle point, set it to the middle label:
-                slideOutputValue = trial.labels[1];
-            }else if(jsPsychSlider.value > trial.max/2){
-                //Above the mid point:
-                slideOutputValue = (jsPsychSlider.value-trial.max/2)*2 + "% " + trial.labels[2];
-            }else{
-                //Below the mid point:
-                slideOutputValue = (jsPsychSlider.value-trial.max/2)*-2 + "% " + trial.labels[0];
-            }
-        }else if(trial.labels.length === 2) {
-            if(jsPsychSlider.value == trial.max/2){
-                //If middle point, set it to 0:
-                slideOutputValue = 0;
-            }else if(jsPsychSlider.value > trial.max/2){
-                //Above the mid point:
-                slideOutputValue = (jsPsychSlider.value-trial.max/2)*2 + "% " + trial.labels[1];
-            }else{
-                //Below the mid point:
-                slideOutputValue = (jsPsychSlider.value-trial.max/2)*-2 + "% " + trial.labels[0];
-            }
-        }else { //more than 2 or 3
-            slideOutputValue = 'Value: '+jsPsychSlider.value+'%';
-        }
+        //The first information is 100-x% of the first label
+        let outputValue1 = (100-jsPsychSlider.value) + "% " + trial.labels[0];
+        //The second information is x% of the last label
+        let outputValue2 = (jsPsychSlider.value) + "% " + trial.labels[trial.labels.length-1];
 
-        jsPsychSliderOutput.innerHTML = slideOutputValue;
+        jsPsychSliderOutput.innerHTML = outputValue1 + '<br>' + outputValue2;
     }
 /* -------------------------------------------------------------------------- */
 

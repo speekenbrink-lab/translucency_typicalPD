@@ -144,7 +144,7 @@ function createInstructions(experimentSettings){
     return createExperiment(instructionHTML, experimentSettings);
 }
 
-//Function to toggle showin the instructins reminder:
+//Function to toggle showing the instructins reminder:
 function toggleInstructionsReminder(){
 
     //If the instructionsReminder is hidden it will be revealed...
@@ -156,6 +156,7 @@ function toggleInstructionsReminder(){
         $('#toggleInstructionsButton').html("Show Instructions");
     }
 
+    //Show/Hide the instructions reminder
     $('#instructionsReminder').toggle();
 }
 
@@ -265,9 +266,21 @@ function createExperiment(instructionHTML, experimentSettings){
     timeline.push(comprehension_loop_node);
 
     //Choice:
+
+    //Get the table of the payoffs:
+    let startTable = instructionHTML.search("<table"); //get the starting index of the table
+    let endTable = instructionHTML.search("</table>"); //get the end index of the table
+    endTable += 8; //add to include the other elements of the string "/table>"
+    let tableHTML = instructionHTML.slice(startTable, endTable);
+
+    //Create the text to present for the choice:
+    let choiceHTML = "<div id='instructions-wrap'><p>Please carefully make your choice. This is the choice that will determine (dependent on the other participant's choice) the amount of money you will receive as a bonus reward on top of the money you receive for answering the questions afterwards. The result of your choice will be presented after a few questions.</p><p>Here is a reminder of the possible results according to the choices made. Note that you can consult the instructions at any time by clicking on the button in the top right.</p><br>";
+    choiceHTML += tableHTML;
+    choiceHTML += "</div><p>Please make your choice:</p>";
+
     var choice_trial = {
         type: 'html-button-response',
-        stimulus: 'Please make your choice:',
+        stimulus: choiceHTML,
         choices: ['Option A', 'Option B'], // TODO: Should I randomise the order? (might be confusing)
         on_finish: function(data){
             var playerChoice;
@@ -287,7 +300,8 @@ function createExperiment(instructionHTML, experimentSettings){
         stimulus: '<p> What choice do you think the other player will make? </p>',
         labels: ['Option A', "I don't know", 'Option B'],
         require_movement: true,
-        slider_width: 400
+        slider_width: 400,
+        step: 1
     };
     timeline.push(questionB1);
 
@@ -304,7 +318,8 @@ function createExperiment(instructionHTML, experimentSettings){
         stimulus: '<p> What do you think the other player <b>thinks you chose</b>?  </p>',
         labels: ['Option A', "I don't know", 'Option B'],
         require_movement: true,
-        slider_width: 400
+        slider_width: 400,
+        step: 1
     };
     timeline.push(questionB3);
 
@@ -321,7 +336,8 @@ function createExperiment(instructionHTML, experimentSettings){
         stimulus: '<p> If the other player were able to see your choice before making theirs, what do you think they would choose?  </p>',
         labels: ['Option A', "I don't know", 'Option B'],
         require_movement: true,
-        slider_width: 400
+        slider_width: 400,
+        step: 1
     };
     timeline.push(questionB5);
 
@@ -357,7 +373,7 @@ function createExperiment(instructionHTML, experimentSettings){
     //wait/Reveal:
     var waitRevealResults = {
         type: 'showResults',
-        stimulus: '<p>Please wait whilst the server calculates the results.</p><p>This should not take long<p>',
+        stimulus: '<p>Please wait whilst the server calculates the results.</p><p>This should not take long</p><p>Please do not refresh or leave the experiment or we will not be able to pay you.</p>',
         choices: ['Continue']
     };
     timeline.push(waitRevealResults);
@@ -366,9 +382,10 @@ function createExperiment(instructionHTML, experimentSettings){
     var questionC1 = {
         type: 'slider-with-value',
         stimulus: '<p> Do you think the other player knew which choice you made? </p>',
-        labels: ['Definitely not', 'Definitely yes'],
+        labels: ['No', "I don't know", 'Yes'],
         require_movement: true,
-        slider_width: 400
+        slider_width: 400,
+        step: 1
     };
     timeline.push(questionC1);
 
@@ -385,7 +402,8 @@ function createExperiment(instructionHTML, experimentSettings){
         stimulus: '<p> If you were to play again with this person, which choice would you make? </p>',
         labels: ['Option A', "I don't know", 'Option B'],
         require_movement: true,
-        slider_width: 400
+        slider_width: 400,
+        step: 1
     };
     timeline.push(questionC3);
 
@@ -394,7 +412,8 @@ function createExperiment(instructionHTML, experimentSettings){
         stimulus: '<p> If you were to play again with a different person, which choice would you make? </p>',
         labels: ['Option A', "I don't know", 'Option B'],
         require_movement: true,
-        slider_width: 400
+        slider_width: 400,
+        step: 1
     };
     timeline.push(questionC4);
 
@@ -428,6 +447,66 @@ function createExperiment(instructionHTML, experimentSettings){
 
     //Demographics:
 
+    //age
+    var age_trial = {
+        type: "spinbox",
+        min: 18,
+        max: 99,
+        preamble: "<p>Please indicate your age:</p>"
+    };
+    timeline.push(age_trial);
+
+    //gender
+    var gender_trial = {
+        type: 'centred-survey-multi-choice',
+        questions: [
+        {prompt: "Please indicate your gender:", name: 'Gender', options: ["Female", "Male", "Other", "Prefer not to say"], required: true},
+        ],
+    };
+    timeline.push(gender_trial);
+
+    //date
+    var days = ["Select one"]; //If you make it required, make a first option that won't be chosen
+    for (var i = 1; i <= 31; i++) {
+        days.push(i.toString()); //add the number as a string for the plugin
+    }
+
+    var months = ["Select one"]; //If you make it required, make a first option that won't be chosen
+    for (var i = 1; i <= 12; i++) {
+        months.push(i.toString()); //add the number as a string for the plugin
+    }
+
+    var years = ["Select one"]; //If you make it required, make a first option that won't be chosen
+    for (var i = 1900; i <= 2020; i++) {
+        years.push(i.toString()); //add the number as a string for the plugin
+    }
+
+    var date_trial = {
+        type: 'multi-dropdown',
+        preamble: '<p>Please provide your date of birth:</p>',
+        questions: [
+            {
+                prompt: "Day:",
+                options: days,
+                required: true,
+                name: "day"
+            },
+            {
+                prompt: "Month:",
+                options: months,
+                required: true,
+                name: "month"
+            },
+            {
+                prompt: "Year:",
+                options: years,
+                required: true,
+                name: "year"
+            }
+        ]
+    };
+    timeline.push(date_trial);
+
     //Comments:
     var commentsQuestion = {
       type: 'survey-text',
@@ -437,6 +516,14 @@ function createExperiment(instructionHTML, experimentSettings){
     };
     timeline.push(commentsQuestion);
 
+    //Debrief:
+    var debrief = {
+        type: 'html-button-response',
+        stimulus: "Thank you for your participation",
+        choices: ['Please press this button to continue to Prolific for your payment'], // TODO: Should I randomise the order? (might be confusing)
+    };
+    timeline.push(debrief);
+
     //Start the experiment
     var userJsPsychData;
     jsPsych.init({
@@ -444,7 +531,11 @@ function createExperiment(instructionHTML, experimentSettings){
       display_element: 'jspsych_target',
       show_progress_bar: true,
       on_finish: function() {
+        //Show data to check
         jsPsych.data.displayData();
+
+        //Send to back to prolific
+        //window.location = String("") // redirect to the correct prolific address
 
         //Getting the data as a json string
         userJsPsychData = jsPsych.data.get().json();
@@ -460,9 +551,6 @@ function afterExperiment(){
     //Send Data:
     fullUserData.ip = ipUser;
     socket.emit('Write Data', fullUserData);
-
-    //Debrief:
-    $('#jspsych_target').html("<h3> Thank you for your participation. </h3>");
 
     //Take user out of user list:
 }
