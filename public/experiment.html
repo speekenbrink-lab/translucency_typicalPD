@@ -19,6 +19,7 @@
     <script src="js/customPlugins/showResults.js"></script>
     <script src="js/customPlugins/jspsych-spinbox.js"></script>
     <script src="js/customPlugins/jspsych-multi-dropdown.js"></script>
+    <script src="js/customPlugins/askForChoice.js"></script>
 
     <!-- Getting my stylesheet -->
     <link href="css/style.css" rel="stylesheet" type="text/css"/>
@@ -38,8 +39,15 @@
 
     <!-- Where the jsPsych elements will show -->
     <div id="jspsych_target">
-        <!-- Placeholder for when participants are waiting -->
-        <h3>Please wait for another participant to join the room. This should not take long.</h3>
+        <div class="jspsych-display-element jspsych-middle">
+            <form id="prolificForm" action=# method="post">
+                <br>
+                <div>Please enter your Prolific ID:</div>
+                <br>
+                <input type="text" id="prolificID" required>
+                <input class="jspsych-btn" type="submit" value="Submit">
+            </form>
+        </div>
     </div>
 
     <script src="/socket.io/socket.io.js"> </script>

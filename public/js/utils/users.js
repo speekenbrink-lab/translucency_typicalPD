@@ -2,13 +2,15 @@
 const users = [];
 
 //Add user info:
-function addUser(id, room){
+function addUser(id, room, prolificId){
     var user = {
         id: id, //this will be their socket.id
         room: room, //this will be the room name they are joigning
-        choice: null,
-        isWaiting: false,
-        payoff: null
+        prolificId: prolificId,
+        choice: null, //What choice did they make?
+        isWaitingForResults: false, //Is the participant waiting for the other player to make their choice so tht results can be shown
+        payoff: null, //What will their payoff be?
+        finishedInstructions: false, //Has the participant finished reading instructions and answering comprehension questions?
     }
 
     //push to users array
@@ -41,6 +43,7 @@ function getRoomUsers(room){
 }
 
 function getOtherPlayer(thisUser){
+    //Get the users in this room
     let bothPlayers = getRoomUsers(thisUser.room);
 
     //get the index of the user
@@ -52,7 +55,7 @@ function getOtherPlayer(thisUser){
         bothPlayers.splice(index, 1);
     }
 
-    //Return the player left from this array
+    //Return the player left from this array (i.e., the other player)
     return bothPlayers[0]
 }
 

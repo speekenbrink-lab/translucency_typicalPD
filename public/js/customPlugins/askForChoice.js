@@ -1,7 +1,6 @@
 /*----------------------------------------------------------------------------*/
 /*
-This is a custom jspsych pluging to reveal the results of a Prisoner's Dilemma.
-It waits for players to have both given their response before showing the results.
+This is a custom jspsych pluging that asks for participants' choices only after each player is ready.
 by Samuel Dupret
 */
 /*----------------------------------------------------------------------------*/
@@ -15,12 +14,12 @@ by Samuel Dupret
  *
  **/
 
-jsPsych.plugins["showResults"] = (function() {
+jsPsych.plugins["askForChoice"] = (function() {
 
   var plugin = {};
 
   plugin.info = {
-    name: 'showResults',
+    name: 'askForChoice',
     description: '',
     parameters: {
       stimulus: {
@@ -87,6 +86,14 @@ jsPsych.plugins["showResults"] = (function() {
     // display stimulus
     var html = '<div id="jspsych-html-button-response-stimulus">'+trial.stimulus+'</div>';
 
+/* -----------------------------Modification--------------------------------- */
+
+    //Add a prompt to have particpants wait:
+    html += '<div id="wait-prompt"><p>Please wait whilst the other participant finishes reading the instructions so that you can both start the experiment together.</p><p>This should not take long.</p><p>Please do not refresh or leave the experiment or we will not be able to pay you.</p></div>';
+
+
+    // To avoid bugs I am writing the button's html manually
+
     //display buttons
     var buttons = [];
     if (Array.isArray(trial.button_html)) {
@@ -100,44 +107,61 @@ jsPsych.plugins["showResults"] = (function() {
         buttons.push(trial.button_html);
       }
     }
-    html += '<div id="jspsych-html-button-response-btngroup" style="display: inline-block;>';
+    html += '<div id="jspsych-html-button-response-btngroup" style="display: inline-block;">'; //Added a " add th end of block;, otherwise it made my first button bug
     for (var i = 0; i < trial.choices.length; i++) {
       var str = buttons[i].replace(/%choice%/g, trial.choices[i]);
       html += '<div class="jspsych-html-button-response-button" style="display: inline-block; margin:'+trial.margin_vertical+' '+trial.margin_horizontal+'" id="jspsych-html-button-response-button-' + i +'" data-choice="'+i+'">'+str+'</div>';
     }
     html += '</div>';
 
+/* -------------------------------------------------------------------------- */
+
     //show prompt if there is one
     if (trial.prompt !== null) {
       html += trial.prompt;
     }
+
+    //Send html to the display element
     display_element.innerHTML = html;
 
 /* -----------------------------Modification--------------------------------- */
     //Tell the server that this user is waiting
-    socket.emit('player is waiting for results');
+    socket.emit('player is waiting to choose');
+
+    //Hide the stimulus
+    display_element.querySelector('#jspsych-html-button-response-stimulus').style.display = "none";
 
     //Saving the display style of the element (because I don't know it)
     var savedDisplayStyle = display_element.querySelector('#jspsych-html-button-response-btngroup').style.display;
 
-    //Hiding the button
+    //Hide the buttons
     display_element.querySelector('#jspsych-html-button-response-btngroup').style.display = "none";
 
-    socket.on('show results', function(resultsHTML){
+    socket.on('ask for choice', function(){
 
-        //Show the result text instead of the wait text
-        $('#jspsych-html-button-response-stimulus').html(resultsHTML);
+        //Show the stimulus
+        display_element.querySelector('#jspsych-html-button-response-stimulus').style.display = "block";
 
-        //Show the button
+        //Hide the wait prompt
+        display_element.querySelector('#wait-prompt').style.display = "none";
+
+        //Show the buttons
         display_element.querySelector('#jspsych-html-button-response-btngroup').style.display = savedDisplayStyle;
 
         //Tell the server that this user received the results
         socket.emit('player received results');
 
-        //Fixed a bug where the initial code was not accessing the right element for the button. Accessing it here with its class. Add an event that launches the end of the trial (the choice is the button's index which would be 0).
-        display_element.querySelector('.jspsych-btn').addEventListener('click', function(e){
-            after_response(0);
+        $(".jspsych-btn").click(function(e){
+            //Get the text of the button clicked:
+            var buttonText = e.target.textContent;
+
+            //Modify it to get rid of 'Option '
+            buttonText = buttonText.replace("Option ", "");
+
+            //Start the response system:
+            after_response(buttonText);
         });
+
     });
 /* -------------------------------------------------------------------------- */
 

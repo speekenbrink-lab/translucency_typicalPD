@@ -2,12 +2,6 @@
 -                            Web functionalities                              -
 ------------------------------------------------------------------------------*/
 
-//Getting the ip address:
-var ipUser;
-$.getJSON("https://api.ipify.org?format=json", function(data) {
-    ipUser = data.ip;
-})
-
 //Checking userAgent information:
 var userAgent = navigator.userAgent;
 //If user is on mobile, or is using neither chrome or firefox...
@@ -17,17 +11,8 @@ if (
     userAgent.indexOf("Chrome") == -1
 ){
     //Redirect to a page that asks them to come back with a different setup.
-    window.location = "redirect.html";
+    window.location = "redirectInternet.html";
 }
-
-// Warning before leaving the page (back button, or outgoing link):
-window.onbeforeunload = function() {
-    let warningMsg = "If you leave now, the experiment will end and you will not receive your payment. Are you sure you want to leave this page?";
-    //Gecko + IE
-    window.event.returnValue = warningMsg;
-    //Gecko + Webkit, Safari, Chrome etc.
-    return warningMsg;
-};
 
 /* DEBUG
 //Preventing right click:
@@ -37,14 +22,53 @@ document.addEventListener("contextmenu", function(e){
 */
 
 /*------------------------------------------------------------------------------
--                              Connect to App                                  -
+-                                 Startup                                     -
 ------------------------------------------------------------------------------*/
+
+//Start collecting data:
+var fullUserData = {};
 
 //Connect to the app:
 const socket = io();
 
-//Start collecting data:
-var fullUserData = {};
+//Ask for Prolific ID:
+document.getElementById("prolificForm").addEventListener("submit", function(e){
+    //Prevent form from firing:
+    e.preventDefault();
+
+    //Getting the id entered:
+    var prolificId = e.target.elements.prolificID.value;
+
+    //Check Prolific ID in data:
+    socket.emit('Test prolific ID', prolificId); //ask server to test
+    //receive answer from server
+    socket.on('Result of Prolific ID test', function(isNewProlificId){
+        //If this is a new id:
+        if(isNewProlificId){
+            //Add the system that shows a warning before leaving the page. Only added here because otherwise I cannot redirect because of a wrong prolific id without giving participants the upportunity to stay on the page.
+            // Warning before leaving the page (back button, or outgoing link):
+            window.onbeforeunload = function() {
+                let warningMsg = "If you leave now, the experiment will end and you will not receive your payment. Are you sure you want to leave this page?";
+                //Gecko + IE
+                window.event.returnValue = warningMsg;
+                //Gecko + Webkit, Safari, Chrome etc.
+                return warningMsg;
+            };
+
+            //Set the placeholder for when participants are waiting to the page:
+            document.getElementById("jspsych_target").innerHTML = "<h3>Please wait for another participant to join the room. This should not take long.</h3>";
+
+            //Add the id to the data:
+            fullUserData.prolificId = prolificId;
+
+            //Inform the server of a valid id:
+            socket.emit('Provided valid prolific ID', prolificId);
+        }else{ //if this is an already existant id
+            //Redirect
+            window.location = "redirectProlificID.html";
+        }
+    });
+});
 
 //Start creating the experiment in jsPsych when asked by the server:
 socket.on('startExperiment', function(experimentSettings){
@@ -52,6 +76,7 @@ socket.on('startExperiment', function(experimentSettings){
     fullUserData.settings = experimentSettings;
     createInstructions(experimentSettings);
 });
+
 
 /*------------------------------------------------------------------------------
 -                         Creating the instructions                            -
@@ -85,7 +110,7 @@ function createInstructions(experimentSettings){
                 <li>Answering a second series of questions.</li>
             </ol>
         </p>`;
-    if(experimentSettings.condition.includes("A")){
+    if(experimentSettings.condition.includes("A")){ //Counterbalancing
         instructionHTML += `
             <p>
                 You (and the other participant) can make one of two choices: <b>A or B</b>.
@@ -279,17 +304,11 @@ function createExperiment(instructionHTML, experimentSettings){
     choiceHTML += "</div><p>Please make your choice:</p>";
 
     var choice_trial = {
-        type: 'html-button-response',
+        type: 'askForChoice',
         stimulus: choiceHTML,
-        choices: ['Option A', 'Option B'], // TODO: Should I randomise the order? (might be confusing)
+        choices: ['Option A', 'Option B'],
         on_finish: function(data){
-            var playerChoice;
-            if(data.button_pressed === "0"){
-                playerChoice = "A";
-            }else if(data.button_pressed === "1"){
-                playerChoice = "B";
-            }
-            socket.emit('player made choice', playerChoice);
+            socket.emit('player made choice', data.button_pressed);
         }
     };
     timeline.push(choice_trial);
@@ -361,7 +380,7 @@ function createExperiment(instructionHTML, experimentSettings){
                 required: true,
             },
             {
-                prompt: "Which outcome would provide the highest possible reward for both you and the other participant?",
+                prompt: "Which outcome would provide the highest possible sum of rewards possible (i.e. which outcome provides the most money for both you and the other player)?",
                 name: "payoffComprehension2",
                 options: choiceResponseOptions,
                 required: true,
@@ -373,7 +392,7 @@ function createExperiment(instructionHTML, experimentSettings){
     //wait/Reveal:
     var waitRevealResults = {
         type: 'showResults',
-        stimulus: '<p>Please wait whilst the server calculates the results.</p><p>This should not take long</p><p>Please do not refresh or leave the experiment or we will not be able to pay you.</p>',
+        stimulus: '<p>Please wait whilst the server calculates the results.</p><p>This should not take long.</p><p>Please do not refresh or leave the experiment or we will not be able to pay you.</p>',
         choices: ['Continue']
     };
     timeline.push(waitRevealResults);
@@ -381,7 +400,7 @@ function createExperiment(instructionHTML, experimentSettings){
     //Questions C:
     var questionC1 = {
         type: 'slider-with-value',
-        stimulus: '<p> Do you think the other player knew which choice you made? </p>',
+        stimulus: '<p> When the other player made their choice, do you think they knew which choice you made? </p>',
         labels: ['No', "I don't know", 'Yes'],
         require_movement: true,
         slider_width: 400,
@@ -392,7 +411,7 @@ function createExperiment(instructionHTML, experimentSettings){
     var questionC2 = {
       type: 'survey-text',
       questions: [
-        {prompt: "Now that you saw the choice made by the other participant, can you please briefly explain why you think they made this choice? ", name: "explainOtherPartChoice", rows: 5, columns: 40, required: true}
+        {prompt: "Now that you saw the choice made by the other player, can you please briefly explain why you think they made this choice? ", name: "explainOtherPartChoice", rows: 5, columns: 40, required: true}
       ],
     };
     timeline.push(questionC2);
@@ -426,10 +445,23 @@ function createExperiment(instructionHTML, experimentSettings){
     ];
 
     var econExperience1 = {
-      type: 'survey-likert',
-      questions: [
-        {prompt: "How often have you played games like this one, where money is divided up between you and another player based on your choices, before doing this experiment?", labels: likert5, required: true}
-      ]
+        type: 'survey-likert',
+        questions: [
+            {prompt: "How often have you played games like this one, where money is divided up between you and another player based on your choices, before doing this experiment?", labels: likert5, required: true}
+        ],
+        data: {likertResponseText: '', likertResponseNumber: ''},
+        on_finish: function(data){
+            //Getting the text and number of the response in a clearer way than jspsych
+            var likertQuestionResponse = JSON.parse(data.responses); //get the response
+            //Get the text of the response by using the response as an index
+            var likertQuestionIndex = likertQuestionResponse.Q0;
+            var likertResponseText = likert5[likertQuestionIndex];
+            //Get the number response by incrementing it (so the scale starts at 1 not 0)
+            var likertResponseNumber = likertQuestionIndex + 1;
+            likertResponseNumber = likertResponseNumber.toString();
+            data.likertResponseText = likertResponseText;
+            data.likertResponseNumber = likertResponseNumber;
+        }
     };
     timeline.push(econExperience1);
 
@@ -466,14 +498,30 @@ function createExperiment(instructionHTML, experimentSettings){
     timeline.push(gender_trial);
 
     //date
+    //Creating the date variables:
+    var dateNumberString;
     var days = ["Select one"]; //If you make it required, make a first option that won't be chosen
     for (var i = 1; i <= 31; i++) {
-        days.push(i.toString()); //add the number as a string for the plugin
+        if(i < 10){
+            //add a zero before single numbers
+            dateNumberString = "0" + i.toString();
+        }else{
+            //Do not add anything before double numbers
+            dateNumberString = i.toString();
+        }
+        days.push(dateNumberString); //add the number as a string for the plugin
     }
 
     var months = ["Select one"]; //If you make it required, make a first option that won't be chosen
     for (var i = 1; i <= 12; i++) {
-        months.push(i.toString()); //add the number as a string for the plugin
+        if(i < 10){
+            //add a zero before single numbers
+            dateNumberString = "0" + i.toString();
+        }else{
+            //Do not add anything before double numbers
+            dateNumberString = i.toString();
+        }
+        months.push(dateNumberString); //add the number as a string for the plugin
     }
 
     var years = ["Select one"]; //If you make it required, make a first option that won't be chosen
@@ -519,8 +567,8 @@ function createExperiment(instructionHTML, experimentSettings){
     //Debrief:
     var debrief = {
         type: 'html-button-response',
-        stimulus: "Thank you for your participation",
-        choices: ['Please press this button to continue to Prolific for your payment'], // TODO: Should I randomise the order? (might be confusing)
+        stimulus: "<p>Thank you for your participation</p>",
+        choices: ['Please press this button to continue to Prolific for your payment']
     };
     timeline.push(debrief);
 
@@ -534,23 +582,17 @@ function createExperiment(instructionHTML, experimentSettings){
         //Show data to check
         jsPsych.data.displayData();
 
-        //Send to back to prolific
-        //window.location = String("") // redirect to the correct prolific address
-
         //Getting the data as a json string
         userJsPsychData = jsPsych.data.get().json();
         fullUserData.jsPsych = JSON.parse(userJsPsychData);
 
-        return afterExperiment();
+        //Send Data:
+        socket.emit('Write Data', fullUserData);
+
+        //Redirect to back to prolific
+        // TODO: Put prolific link
+        // TODO: Do I have to deal with the warning message preventing me to leave directly?
+        window.location = String("https://www.google.co.uk")
       }
     });
-}
-
-//What happens at the end of the JsPsych bit:
-function afterExperiment(){
-    //Send Data:
-    fullUserData.ip = ipUser;
-    socket.emit('Write Data', fullUserData);
-
-    //Take user out of user list:
 }

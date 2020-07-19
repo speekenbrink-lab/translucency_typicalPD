@@ -21,22 +21,7 @@ app.use(express.static(__dirname + '/public'));
 ------------------------------------------------------------------------------*/
 
 //Getting the config:
-//For some reason it only returns an empty object when I do this...
-//const config = require('./config.js');
-
-//Manual config:
-const config = {};
-config.partNB = 4;
-config.conditions = ["A", "B"];
-// The number of rooms will be config.partNB/(2*config.conditions.length)
-config.payoffs = {
-    t: 't',
-    r: 'r',
-    p: 'p',
-    s: 's'
-};
-config.showUpFee = 'z';
-
+const {config} = require('./config.js');
 
 //getting the rooms:
 var tempRooms = [], newRoomName;
@@ -47,19 +32,10 @@ for (var i = 0; i < config.partNB/(2*config.conditions.length); i++) {
     }
 }
 
-
 const partialRooms = [];
 const fullRooms = [];
 const emptyRooms = tempRooms;
-// const emptyRooms = [];
-// for (var i = 0; i < tempRooms.length; i++) {
-//     emptyRooms.push({
-//         condition: tempRooms[i],
-//         players: []
-//     });
-// }
 
-console.log(emptyRooms);
 //Getting the users module:
 const {
     addUser,
@@ -95,103 +71,162 @@ io.on('connection', function(socket){
     //Log on connection:
     console.log('New connection by ' + socket.id);
 
-    //Sending to a room:
-    var participantRoom;
-    var isEnteredPartialRoom = false;
-    if (partialRooms.length !== 0) {//A room needs filling:
-        //randomly select one of the partial rooms
-        participantRoom = popChoice(partialRooms);
-        //Set this to true to launch the experiment for the users of this room
-        isEnteredPartialRoom = true;
-        //send this room to the fullRooms
-        fullRooms.push(participantRoom);
+    //Test the prolific ID provided:
+    socket.on('Test prolific ID', function(prolificId){
 
-    } else if (emptyRooms.length !== 0){//Open new room:
-        //Randomly select one of the empty rooms
-        participantRoom = popChoice(emptyRooms);
-        //send this room to the partialRooms
-        partialRooms.push(participantRoom);
-    } else {//The game is empty...
-        // TODO: What should I do if the game is empty?
-    }
+        //Get all the files in data
+        fs.readdir("./Data/", function(err, files) {
 
-    //Add the user:
-    const user = addUser(socket.id, participantRoom);
-    //Join this user to the room selected:
-    socket.join(user.room);
+            //handling error
+            if (err) {
+                return console.log('Unable to scan directory: ' + err);
+            }
 
-    //Get the experiment settings that will be sent when the experiment is started
-    const experimentSettings = {
-        config: config,
-        condition: user.room
-    };
+            //Add .json to the prolificID. Each data file is save as a .json with the prolific ID as a name.
+            testProlificIdString = prolificId + ".json"
 
-    //If they joined a room with another player waiting:
-    if (isEnteredPartialRoom) {
-        //Tell each player to start the experiment
-        io.in(user.room).emit('startExperiment', experimentSettings);
-    }
+            //Create a boolean that signals whether this is a new prolific ID or not
+            var isNewProlificId = true;
 
-    //When user makes their choice:
-    socket.on('player made choice', function(playerChoice){
-        //Record their choice
-        user.choice = playerChoice;
+            //If that prolificId is already used
+            if(files.includes(testProlificIdString)){
+                isNewProlificId = false;
+            }
 
-        //Get the other player...
-        var otherPlayer = getOtherPlayer(user);
-        if(otherPlayer.isWaiting){
-            //If the other player is waiting for the reveal, send them the results
-            sendResuts(otherPlayer);
+            //Send back to client
+            io.to(socket.id).emit('Result of Prolific ID test', isNewProlificId);
+
+        });
+    });
+
+    //Wait for the user to enter a valid prolific ID:
+    socket.on('Provided valid prolific ID', function(prolificId){
+        //Sending to a room:
+        var participantRoom;
+        var isEnteredPartialRoom = false;
+        if (partialRooms.length !== 0) {//A room needs filling:
+            //randomly select one of the partial rooms
+            participantRoom = popChoice(partialRooms);
+            //Set this to true to launch the experiment for the users of this room
+            isEnteredPartialRoom = true;
+            //send this room to the fullRooms
+            fullRooms.push(participantRoom);
+
+        } else if (emptyRooms.length !== 0){//Open new room:
+            //Randomly select one of the empty rooms
+            participantRoom = popChoice(emptyRooms);
+            //send this room to the partialRooms
+            partialRooms.push(participantRoom);
+        } else {//The game is empty...
+            // TODO: What should I do if the game is empty?
         }
-    });
 
-    //When the user is waiting for the reveal:
-    socket.on('player is waiting for results', function(){
-        //Change their status
-        user.isWaiting = true;
+        //Add the user and room:
+        const user = addUser(socket.id, participantRoom, prolificId);
+        //Join this user to the room selected:
+        socket.join(user.room);
 
-        //Get the other player...
-        var otherPlayer = getOtherPlayer(user);
-        if(otherPlayer.isWaiting){
-            //If the other player is also waiting for the reveal, send results to both
-            sendResuts(otherPlayer);
-            sendResuts(user);
-        }else if(otherPlayer.choice !== null){
-            //If the other player made their choice but isn't at the waiting stage, send results to self
-            sendResuts(user);
+        //Get the experiment settings that will be sent when the experiment is started
+        const experimentSettings = {
+            config: config,
+            condition: user.room
+        };
+
+        //If they joined a room with another player waiting:
+        if (isEnteredPartialRoom) {
+            //Tell each player to start the experiment
+            io.in(user.room).emit('startExperiment', experimentSettings);
         }
+
+        //When user is waiting to make their choice:
+        socket.on('player is waiting to choose', function(){
+            //Record that they finished with the instructions
+            user.finishedInstructions = true;
+
+            //Get the other player...
+            var otherPlayer = getOtherPlayer(user);
+
+            //If that player has also finished with instructions...
+            if(otherPlayer.finishedInstructions){
+                //...signal to both of them that they can make their choice
+                io.in(user.room).emit('ask for choice');
+            }
+        });
+
+        //When user makes their choice:
+        socket.on('player made choice', function(playerChoice){
+            //Record their choice
+            user.choice = playerChoice;
+
+            //Get the other player...
+            var otherPlayer = getOtherPlayer(user);
+            if(otherPlayer.isWaitingForResults){
+                //If the other player is waiting for the reveal, send them the results
+                sendResuts(otherPlayer);
+            }
+        });
+
+        //When the user is waiting for the reveal:
+        socket.on('player is waiting for results', function(){
+            //Change their status
+            user.isWaitingForResults = true;
+
+            //Get the other player...
+            var otherPlayer = getOtherPlayer(user);
+            if(otherPlayer.isWaitingForResults){
+                //If the other player is also waiting for the reveal, send results to both
+                sendResuts(otherPlayer);
+                sendResuts(user);
+            }else if(otherPlayer.choice !== null){
+                //If the other player made their choice but isn't at the waiting stage, send results to self
+                sendResuts(user);
+            }
+        });
+
+        //Once a user has seen the results, change their status
+        socket.on('player received results', function(){
+            user.isWaitingForResults = false;
+        });
+
+
+        //Once a user finished, write down the data:
+        socket.on('Write Data', function(fullUserData){
+            //Adding info about the players:
+            fullUserData.socketId = socket.id;
+            var otherPlayer = getOtherPlayer(user);
+            fullUserData.otherPlayerSocketId = otherPlayer.id;
+            fullUserData.otherPlayerProlificId = otherPlayer.prolificId;
+
+            //Prepare the data to write to a json
+            var jsonToWrite = JSON.stringify(fullUserData);
+            //The name of the .json will be the prolific id
+            var jsonPath = "./Data/" + fullUserData.prolificId + ".json";
+            //Writting the data to a json:
+            fs.writeFile(jsonPath, jsonToWrite, 'utf8', function(err){if (err){console.log(err)}});
+        });
     });
 
-    //Once a user has seen the results, change their status
-    socket.on('player received results', function(){
-        user.isWaiting = false;
-    });
-
-
-    //Once a user finished, write down the data:
-    socket.on('Write Data', function(fullUserData){
-        //Adding info about the players:
-        fullUserData.currentPlayer = socket.id;
-        var otherPlayer = getOtherPlayer(user);
-        fullUserData.otherPlayer = otherPlayer.id;
-
-        //Writting the data to a json:
-        var jsonToWrite = JSON.stringify(fullUserData);
-        var jsonPath = "./Data/" + socket.id + ".json";
-        fs.writeFile(jsonPath, jsonToWrite, 'utf8', function(err){if (err){console.log(err)}});
-    });
 
     //When user disconnects
     socket.on('disconnect', function(){
-        // //Get the user that left
-        // const user = userLeave(socket.id);
-        // //If that user exists
-        // if(user){
-        //     console.log(user.username, "disconnected");
-        //
-        //     //Tell them the other users to update their playerList
-        //     io.in(user.room).emit('updatePlayerList', roomUsers);
-        // }
+        //Get the user that left
+        const user = userLeave(socket.id);
+        //This takes the user out of the list... so his choice cannot be called when the other player gets to the results... getUser does not work if the user doesn't exist
+
+        //If that user exists
+        if(user){
+            //Log information
+            console.log(user.id, "disconnected");
+
+            //if they already made a choice
+            if(user.choice !== null){
+                //And leave them in the user list so that their choice can be accessed when the other player gets to the results?? Put them back in list??
+
+            }else{//if they haven't made their choice
+                // TODO: look at whether they finished reading instructions
+                // TODO: timeout
+            }
+        }
     }); //End of disconnect
 
 }); //End of connection
