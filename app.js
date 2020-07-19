@@ -74,29 +74,31 @@ io.on('connection', function(socket){
     //Test the prolific ID provided:
     socket.on('Test prolific ID', function(prolificId){
 
-        //Get all the files in data
-        fs.readdir("./Data/", function(err, files) {
+        //Get the prolific IDs:
+        var currentProlificIDs = fs.readFileSync('./prolificIDs/prolificIDs.txt', 'utf8');
+        currentProlificIDs = currentProlificIDs.split("\n"); //make into array
 
-            //handling error
-            if (err) {
-                return console.log('Unable to scan directory: ' + err);
-            }
+        //Create a boolean that signals whether this is a new prolific ID or not
+        var isNewProlificId = true;
 
-            //Add .json to the prolificID. Each data file is save as a .json with the prolific ID as a name.
-            testProlificIdString = prolificId + ".json"
+        //If that prolificId is already used (the file includes it)
+        if(currentProlificIDs.includes(prolificId)){
+            //set boolean to false
+            isNewProlificId = false;
 
-            //Create a boolean that signals whether this is a new prolific ID or not
-            var isNewProlificId = true;
+        }else{ //if it is not used yet (the file does not include it)
+            //Append it to the fie with a line break
+            fs.appendFile('./prolificIDs/prolificIDs.txt', prolificId + '\n', function (err) {
+                if (err) {
+                    // error message if append failed
+                    console.log("Failed to append" + prolificId)
+                }
+            });
+        }
 
-            //If that prolificId is already used
-            if(files.includes(testProlificIdString)){
-                isNewProlificId = false;
-            }
-
-            //Send back to client
-            io.to(socket.id).emit('Result of Prolific ID test', isNewProlificId);
-
-        });
+        //Send back to client
+        io.to(socket.id).emit('Result of Prolific ID test', isNewProlificId);
+        
     });
 
     //Wait for the user to enter a valid prolific ID:
