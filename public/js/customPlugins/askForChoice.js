@@ -35,13 +35,16 @@ jsPsych.plugins["askForChoice"] = (function() {
         array: true,
         description: 'The labels for the buttons.'
       },
+/* -----------------------------Modification--------------------------------- */
       button_html: {
         type: jsPsych.plugins.parameterType.STRING,
         pretty_name: 'Button HTML',
-        default: '<button class="jspsych-btn">%choice%</button>',
+        //Added "choice-btn" class to separate it out from other buttons
+        default: '<button class="jspsych-btn choice-btn">%choice%</button>',
         array: true,
         description: 'The html of the button. Can create own style.'
       },
+/* -------------------------------------------------------------------------- */
       prompt: {
         type: jsPsych.plugins.parameterType.STRING,
         pretty_name: 'Prompt',
@@ -151,7 +154,7 @@ jsPsych.plugins["askForChoice"] = (function() {
         //Tell the server that this user received the results
         socket.emit('player received results');
 
-        $(".jspsych-btn").click(function(e){
+        $(".choice-btn").click(function(e){
             //Get the text of the button clicked:
             var buttonText = e.target.textContent;
 
