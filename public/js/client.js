@@ -29,7 +29,10 @@ document.addEventListener("contextmenu", function(e){
 var fullUserData = {};
 
 //Connect to the app:
-const socket = io();
+// const socket = io();
+
+const socket = io('' + _SERVER_ADDRESS + '', {path: _PATH + '/socket.io'}); //.connect('http://perceptsconcepts.psych.indiana.edu:3000');
+
 
 //Ask for Prolific ID:
 document.getElementById("prolificForm").addEventListener("submit", function(e){
