@@ -23,7 +23,7 @@ var server = app.listen(process.env.PORT || config.port, function(){
   console.log("Server should be available at %s", address);
 });
 
-const io = socketio(server); //create the socket on the server side
+const io = socketio(server, {path: config.path + '/socket.io'}); //create the socket on the server side
 
 //For creating and reading files:
 const fs = require('fs');
