@@ -322,9 +322,16 @@ io.on('connection', function(socket){
                 fullUserData.otherPlayerProlificId = "NA";
             }
 
+            //Add timeout information
+            fullUserData.timeout = user.timeout;
 
-            //Adding the user's payoff:
+            //Adding the user's choice and payoff:
+            fullUserData.myChoice = user.choice;
             fullUserData.myPayoff = user.myPayoff;
+
+            //Adding information about the other user:
+            fullUserData.otherChoice = user.otherChoice;
+            fullUserData.otherPayoff = user.otherPayoff;
 
             //Prepare the data to write to a json
             var jsonToWrite = JSON.stringify(fullUserData);
@@ -334,7 +341,6 @@ io.on('connection', function(socket){
             fs.writeFile(jsonPath, jsonToWrite, 'utf8', function(err){if (err){console.log(err)}});
         });
     });
-
 
     //When user disconnects
     socket.on('disconnect', function(){
