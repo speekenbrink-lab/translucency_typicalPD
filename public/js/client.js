@@ -14,12 +14,10 @@ if (
     window.location = "redirectInternet.html";
 }
 
-/* DEBUG
 //Preventing right click:
 document.addEventListener("contextmenu", function(e){
   e.preventDefault();
 }, false);
-*/
 
 /*------------------------------------------------------------------------------
 -                                 Startup                                     -
@@ -581,7 +579,7 @@ function createExperiment(instructionHTML, experimentSettings){
     timeline.push(commentsQuestion);
 
     //Debrief:
-    var debriefStim = "<h3>Thank you for your participation.</h3><p>The aim of this study is to investigate strategic decision-making in two player scenarios. Namely, we are interested in people's choices between a cooperative and a self-interested options, how they think about their choice, how they think about the other participant's choice, and how they think about the choice making process.</p><p>This was investigated using a single-shot (you only played once), normal form (both participants played simultaneously), double-choice (you chose between two options) <a href='https://en.wikipedia.org/wiki/Prisoner%27s_dilemma' target='_blank'>prisoner's dilemma.</a></p><p> One of the options you were presented with was a cooperative choice (It could lead to a better outcome for both you and the other participant, but if the other participant) and the other option was a self-interest choice (it would generally lead to a better outcome for you, but a worse one for the other participant).</p><p>This is a control condition to determine baseline levels of cooperation and thoughts about the decision-making. The next step will involve investigating a <a href='https://journals.sagepub.com/doi/abs/10.1177/1043463119885102' target='_blank'>theory about cooperation in this situation.</a></p>";
+    var debriefStim = "<h3>Thank you for your participation.</h3><p>The aim of this study is to investigate strategic decision-making in two player scenarios. Namely, we are interested in people's choices between a cooperative and a self-interested options, how they think about their choice, how they think about the other participant's choice, and how they think about the choice making process.</p><p>This was investigated using a single-shot (you only played once), normal form (both participants played simultaneously), double-choice (you chose between two options) <a href='https://en.wikipedia.org/wiki/Prisoner%27s_dilemma' target='_blank'>prisoner's dilemma.</a></p><p> One of the options you were presented with was a cooperative choice (It could lead to a better outcome for both you and the other participant, but if the other participant) and the other option was a self-interest choice (it would generally lead to a better outcome for you, but a worse one for the other participant).</p><p>This is a control condition to determine baseline levels of cooperation and thoughts about the decision-making. The next step will involve investigating a <a href='https://journals.sagepub.com/doi/abs/10.1177/1043463119885102' target='_blank'>theory about cooperation in social dilemmas like this one.</a></p>";
     var debrief = {
         type: 'debrief',
         stimulus: debriefStim,
