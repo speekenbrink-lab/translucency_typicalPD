@@ -117,6 +117,11 @@ jsPsych.plugins["showResults"] = (function() {
     //Tell the server that this user is waiting
     socket.emit('player is waiting for results');
 
+    //Start a timeout that will tell the server that this user has waited for too long
+    var longWaitTimeout = setTimeout(function(){
+        socket.emit('waited too long', 'results');
+    }, 120000); //Need to hardcode the time (currently, 2min)
+
     //Saving the display style of the element (because I don't know it)
     var savedDisplayStyle = display_element.querySelector('#jspsych-html-button-response-btngroup').style.display;
 
@@ -124,6 +129,15 @@ jsPsych.plugins["showResults"] = (function() {
     display_element.querySelector('#jspsych-html-button-response-btngroup').style.display = "none";
 
     socket.on('show results', function(resultsHTML){
+        //Stop the timeout
+        clearTimeout(longWaitTimeout);
+
+        //Play bell sound because the other participant made their choice so the results can be shown.
+        function playSound(soundObj) {
+            var sound = document.getElementById(soundObj);
+            sound.play();
+        }
+        playSound("bellSound");
 
         //Show the result text instead of the wait text
         $('#jspsych-html-button-response-stimulus').html(resultsHTML);

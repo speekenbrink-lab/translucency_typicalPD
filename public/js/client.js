@@ -56,7 +56,7 @@ document.getElementById("prolificForm").addEventListener("submit", function(e){
             };
 
             //Set the placeholder for when participants are waiting to the page:
-            document.getElementById("jspsych_target").innerHTML = "<h3>Please wait for another participant to join the room. This should not take long.</h3>";
+            document.getElementById("jspsych_target").innerHTML = "<h3>Please wait for another participant to join the room. This should not take long.</h3><p>A bell sound will play when another player has joined the room and the experiment is ready to begin.</p>";
 
             //Add the id to the data:
             fullUserData.prolificId = prolificId;
@@ -70,8 +70,21 @@ document.getElementById("prolificForm").addEventListener("submit", function(e){
     });
 });
 
+//If there is no room available
+socket.on('Rooms are empty', function(){
+    //Inform participant
+    document.getElementById("jspsych_target").innerHTML = "<h3>Sorry, all of the rooms for this experiment are busy.</h3><p>Please contact me if you had a problem or if you want information about new rooms being made available (samuel.dupret.19@ucl.ac.uk).</p>";
+});
+
 //Start creating the experiment in jsPsych when asked by the server:
 socket.on('startExperiment', function(experimentSettings){
+    //Play bell sound because the other participant joined
+    function playSound(soundObj) {
+        var sound = document.getElementById(soundObj);
+        sound.play();
+    }
+    playSound("bellSound");
+
     //console.log(experimentSettings);
     fullUserData.settings = experimentSettings;
     createInstructions(experimentSettings);
@@ -94,9 +107,9 @@ function createInstructions(experimentSettings){
         <p>Welcome to this study and thank you for participation. You have been paired with another anonymous participant. You will be given a choice to make in order to win some money. The amount of money earned depends on the choice made by you and the choice made by the other participant. On top of the money earned according to the choices, you will each receive £${experimentSettings.config.showUpFee} for answering questions about yourself and your experience making the choices. Note that payment is conditional on you completing the study.</p>
 
         <p>
-            Please ensure that you set this page to fullscreen (press F11 on PC or Control + Command + F on Mac).<br>
-            Please ensure there are no distractions. <br>
-            Please be aware that if you leave or refresh this page it will end the experiment and you will not receive your payment.
+            Please ensure that you set this page to fullscreen (press F11 on PC or Control + Command + F on Mac).<br><br>
+            Please ensure there are no distractions. <strong>This is a multiplayer game, thereby, it is best for you and the other participant that you keep at the task at hand and do not do anything else. Notably, this will ensure you do not have to wait too long for the other participant to make their decision. </strong> <br><br>
+            <strong>Please be aware that if you leave or refresh this page it will end the experiment and you will not receive your payment. </strong>
         </p>
 
         <p>
@@ -209,7 +222,7 @@ function createExperiment(instructionHTML, experimentSettings){
         `£${experimentSettings.config.payoffs.p}`];
     var trueOrFalseResponseOptions = ["true", "false"];
     var comprehensionQuestions = {
-        type: 'centred-survey-multi-choice',
+        type: 'leftAligned-survey-multi-choice',
         preamble: '<p> These are comprehension questions about the instructions that you must answer correctly in order to progress. If you answer them incorrectly, you will be presented with the questions again. You can click the “Show Instructions” button on the top right of the screen to show the instructions again. </p>',
         data: {trialInformationType: "instructions_comprehension"},
         questions: [
@@ -235,7 +248,7 @@ function createExperiment(instructionHTML, experimentSettings){
                 horizontal: true
             },
             {
-                prompt: "The rewards obtained are dependent on the choices made by you and the other participant",
+                prompt: "The rewards obtained are dependent on the choices made by you and the other participant.",
                 name: "instructionsComprehension4",
                 options: trueOrFalseResponseOptions,
                 required: true,
@@ -249,7 +262,7 @@ function createExperiment(instructionHTML, experimentSettings){
                 horizontal: true
             },
             {
-                prompt: "I can directly communicate with the other player.",
+                prompt: "I can directly communicate with the other participant.",
                 name: "instructionsComprehension6",
                 options: trueOrFalseResponseOptions,
                 required: true,
@@ -316,7 +329,7 @@ function createExperiment(instructionHTML, experimentSettings){
     //Questions B:
     var questionB1 = {
         type: 'slider-with-value',
-        stimulus: '<p> What choice do you think the other player will make? </p>',
+        stimulus: '<p> What choice do you think the other participant will make? </p>',
         labels: ['Option A', "I don't know", 'Option B'],
         require_movement: true,
         slider_width: 400,
@@ -327,14 +340,14 @@ function createExperiment(instructionHTML, experimentSettings){
     var questionB2 = {
       type: 'survey-text',
       questions: [
-        {prompt: "Please briefly explain your reasoning for your answer to the previous question: <br> <i>What choice do you think the other player will make?</i>", name: "explainB1", rows: 5, columns: 40, required: true}
+        {prompt: "Please briefly explain your reasoning for your answer to the previous question: <br> <i>What choice do you think the other participant will make?</i>", name: "explainB1", rows: 5, columns: 40, required: true}
       ],
     };
     timeline.push(questionB2);
 
     var questionB3 = {
         type: 'slider-with-value',
-        stimulus: '<p> What do you think the other player <b>thinks you chose</b>?  </p>',
+        stimulus: '<p> What do you think the other participant <b>thinks you chose</b>?  </p>',
         labels: ['Option A', "I don't know", 'Option B'],
         require_movement: true,
         slider_width: 400,
@@ -345,14 +358,14 @@ function createExperiment(instructionHTML, experimentSettings){
     var questionB4 = {
       type: 'survey-text',
       questions: [
-        {prompt: "Please briefly explain your reasoning for your answer to the previous question: <br> <i>What do you think the other player thinks you chose?</i>", name: "explainB3", rows: 5, columns: 40, required: true}
+        {prompt: "Please briefly explain your reasoning for your answer to the previous question: <br> <i>What do you think the other participant <b>thinks you chose</b>?</i>", name: "explainB3", rows: 5, columns: 40, required: true}
       ],
     };
     timeline.push(questionB4);
 
     var questionB5 = {
         type: 'slider-with-value',
-        stimulus: '<p> If the other player were able to see your choice before making theirs, what do you think they would choose?  </p>',
+        stimulus: '<p> If the other participant were able to see your choice before making theirs, what do you think they would choose?  </p>',
         labels: ['Option A', "I don't know", 'Option B'],
         require_movement: true,
         slider_width: 400,
@@ -363,7 +376,7 @@ function createExperiment(instructionHTML, experimentSettings){
     var questionB6 = {
       type: 'survey-text',
       questions: [
-        {prompt: "Please briefly explain your reasoning for your answer to the previous question: <br> <i>If the other player were able to see your choice before making theirs, what do you think they would choose?</i>", name: "explainB5", rows: 5, columns: 40, required: true}
+        {prompt: "Please briefly explain your reasoning for your answer to the previous question: <br> <i>If the other participant were able to see your choice before making theirs, what do you think they would choose?</i>", name: "explainB5", rows: 5, columns: 40, required: true}
       ],
     };
     timeline.push(questionB6);
@@ -371,7 +384,7 @@ function createExperiment(instructionHTML, experimentSettings){
     //Instructions comprehension questions:
     var choiceResponseOptions = ["You choose A and they choose A", "You choose A and they choose B", "You choose B and they choose A", "You choose B and they choose B"];
     var payoffComprehensionQuestions = {
-        type: 'centred-survey-multi-choice',
+        type: 'leftAligned-survey-multi-choice',
         questions: [
             {
                 prompt: "Which outcome would provide you with the highest possible reward you could earn?",
@@ -380,7 +393,7 @@ function createExperiment(instructionHTML, experimentSettings){
                 required: true,
             },
             {
-                prompt: "Which outcome would provide the highest possible sum of rewards possible (i.e. which outcome provides the most money for both you and the other player)?",
+                prompt: "Which outcome would provide the highest possible sum of rewards (i.e. which outcome provides the most money for both you and the other participant)?",
                 name: "payoffComprehension2",
                 options: choiceResponseOptions,
                 required: true,
@@ -392,7 +405,7 @@ function createExperiment(instructionHTML, experimentSettings){
     //wait/Reveal:
     var waitRevealResults = {
         type: 'showResults',
-        stimulus: '<p>Please wait whilst the server calculates the results.</p><p>This should not take long.</p><p>Please do not refresh or leave the experiment or we will not be able to pay you.</p>',
+        stimulus: '<p>Please wait whilst the server calculates the results.</p><p>This should not take long.</p><p>Please do not refresh or leave the experiment or we will not be able to pay you.</p><p>A bell sound will play when the experiment is ready to continue.</p>',
         choices: ['Continue']
     };
     timeline.push(waitRevealResults);
@@ -400,7 +413,7 @@ function createExperiment(instructionHTML, experimentSettings){
     //Questions C:
     var questionC1 = {
         type: 'slider-with-value',
-        stimulus: '<p> When the other player made their choice, do you think they knew which choice you made? </p>',
+        stimulus: '<p> When the other participant made their choice, do you think they knew which choice you made? </p>',
         labels: ['No', "I don't know", 'Yes'],
         require_movement: true,
         slider_width: 400,
@@ -411,7 +424,7 @@ function createExperiment(instructionHTML, experimentSettings){
     var questionC2 = {
       type: 'survey-text',
       questions: [
-        {prompt: "Now that you saw the choice made by the other player, can you please briefly explain why you think they made this choice? ", name: "explainOtherPartChoice", rows: 5, columns: 40, required: true}
+        {prompt: "Now that you saw the choice made by the other participant, can you please briefly explain why you think they made this choice? ", name: "explainOtherPartChoice", rows: 5, columns: 40, required: true}
       ],
     };
     timeline.push(questionC2);
@@ -447,7 +460,7 @@ function createExperiment(instructionHTML, experimentSettings){
     var econExperience1 = {
         type: 'survey-likert',
         questions: [
-            {prompt: "How often have you played games like this one, where money is divided up between you and another player based on your choices, before doing this experiment?", labels: likert5, required: true}
+            {prompt: "How often have you played games like this one, where money is divided up between you and another participant based on your choices, before doing this experiment?", labels: likert5, required: true}
         ],
         data: {likertResponseText: '', likertResponseNumber: ''},
         on_finish: function(data){
@@ -466,7 +479,7 @@ function createExperiment(instructionHTML, experimentSettings){
     timeline.push(econExperience1);
 
     var econExperience2 = {
-        type: 'centred-survey-multi-choice',
+        type: 'leftAligned-survey-multi-choice',
         questions: [
           {
             prompt: "Do you know the name of this particular type of game?",
@@ -490,7 +503,7 @@ function createExperiment(instructionHTML, experimentSettings){
 
     //gender
     var gender_trial = {
-        type: 'centred-survey-multi-choice',
+        type: 'leftAligned-survey-multi-choice',
         questions: [
         {prompt: "Please indicate your gender:", name: 'Gender', options: ["Female", "Male", "Other", "Prefer not to say"], required: true},
         ],
@@ -565,10 +578,11 @@ function createExperiment(instructionHTML, experimentSettings){
     timeline.push(commentsQuestion);
 
     //Debrief:
+    var debriefStim = "<h3>Thank you for your participation.</h3><p>The aim of this study is to investigate strategic decision-making in two player scenarios. Namely, we are interested in people's choices between a cooperative and a self-interested options, how they think about their choice, how they think about the other participant's choice, and how they think about the choice making process.</p><p>This was investigated using a single-shot (you only played once), normal form (both participants played simultaneously), double-choice (you chose between two options) <a href='https://en.wikipedia.org/wiki/Prisoner%27s_dilemma' target='_blank'>prisoner's dilemma.</a></p><p> One of the options you were presented with was a cooperative choice (It could lead to a better outcome for both you and the other participant, but if the other participant) and the other option was a self-interest choice (it would generally lead to a better outcome for you, but a worse one for the other participant).</p><p>This is a control condition to determine baseline levels of cooperation and thoughts about the decision-making. The next step will involve investigating a <a href='https://journals.sagepub.com/doi/abs/10.1177/1043463119885102' target='_blank'>theory about cooperation in this situation.</a></p>";
     var debrief = {
-        type: 'html-button-response',
-        stimulus: "<p>Thank you for your participation</p>",
-        choices: ['Please press this button to continue to Prolific for your payment']
+        type: 'debrief',
+        stimulus: debriefStim,
+        choices: ['Continue to Prolific for your payment']
     };
     timeline.push(debrief);
 
@@ -580,7 +594,7 @@ function createExperiment(instructionHTML, experimentSettings){
       show_progress_bar: true,
       on_finish: function() {
         //Show data to check
-        jsPsych.data.displayData();
+        //jsPsych.data.displayData();
 
         //Getting the data as a json string
         userJsPsychData = jsPsych.data.get().json();
@@ -590,8 +604,12 @@ function createExperiment(instructionHTML, experimentSettings){
         socket.emit('Write Data', fullUserData);
 
         //Redirect to back to prolific
+        //Take out the warning before unload
+        // Warning before leaving the page (back button, or outgoing link):
+        window.onbeforeunload = function() {
+            return undefined;
+        };
         // TODO: Put prolific link
-        // TODO: Do I have to deal with the warning message preventing me to leave directly?
         window.location = String("https://www.google.co.uk")
       }
     });

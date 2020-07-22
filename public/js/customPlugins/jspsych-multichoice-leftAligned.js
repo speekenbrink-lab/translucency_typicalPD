@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------*/
 /*
 This is a custom jspsych pluging to have the text of
-the survey-multi-choice pluging be centred.
+the survey-multi-choice pluging be leftAligned.
 by Samuel Dupret
 */
 /*----------------------------------------------------------------------------*/
@@ -16,11 +16,11 @@ by Samuel Dupret
  */
 /*----------------------------------------------------------------------------*/
 
-jsPsych.plugins['centred-survey-multi-choice'] = (function() {
+jsPsych.plugins['leftAligned-survey-multi-choice'] = (function() {
   var plugin = {};
 
   plugin.info = {
-    name: 'centred-survey-multi-choice',
+    name: 'leftAligned-survey-multi-choice',
     description: '',
     parameters: {
       questions: {

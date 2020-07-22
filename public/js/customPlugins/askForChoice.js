@@ -92,10 +92,7 @@ jsPsych.plugins["askForChoice"] = (function() {
 /* -----------------------------Modification--------------------------------- */
 
     //Add a prompt to have particpants wait:
-    html += '<div id="wait-prompt"><p>Please wait whilst the other participant finishes reading the instructions so that you can both start the experiment together.</p><p>This should not take long.</p><p>Please do not refresh or leave the experiment or we will not be able to pay you.</p></div>';
-
-
-    // To avoid bugs I am writing the button's html manually
+    html += '<div id="wait-prompt"><p>Please wait whilst the other participant finishes reading the instructions so that you can both start the experiment together.</p><p>This should not take long.</p><p>Please do not refresh or leave the experiment or we will not be able to pay you.</p><p>A bell sound will play when the experiment is ready to continue.</p></div>';
 
     //display buttons
     var buttons = [];
@@ -131,6 +128,11 @@ jsPsych.plugins["askForChoice"] = (function() {
     //Tell the server that this user is waiting
     socket.emit('player is waiting to choose');
 
+    //Start a timeout that will tell the server that this user has waited for too long
+    var longWaitTimeout = setTimeout(function(){
+        socket.emit('waited too long', 'instructions');
+    }, 300000); //Need to hardcode the time (currently, 5min)
+
     //Hide the stimulus
     display_element.querySelector('#jspsych-html-button-response-stimulus').style.display = "none";
 
@@ -141,6 +143,15 @@ jsPsych.plugins["askForChoice"] = (function() {
     display_element.querySelector('#jspsych-html-button-response-btngroup').style.display = "none";
 
     socket.on('ask for choice', function(){
+        //Stop the timeout
+        clearTimeout(longWaitTimeout);
+
+        //Play bell sound because the other participant finished reading the instructions
+        function playSound(soundObj) {
+            var sound = document.getElementById(soundObj);
+            sound.play();
+        }
+        playSound("bellSound");
 
         //Show the stimulus
         display_element.querySelector('#jspsych-html-button-response-stimulus').style.display = "block";
@@ -150,9 +161,6 @@ jsPsych.plugins["askForChoice"] = (function() {
 
         //Show the buttons
         display_element.querySelector('#jspsych-html-button-response-btngroup').style.display = savedDisplayStyle;
-
-        //Tell the server that this user received the results
-        socket.emit('player received results');
 
         $(".choice-btn").click(function(e){
             //Get the text of the button clicked:
