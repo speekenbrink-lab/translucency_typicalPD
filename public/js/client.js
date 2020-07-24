@@ -108,9 +108,10 @@ function createInstructions(experimentSettings){
         <p>Welcome to this study and thank you for participation. You have been paired with another anonymous participant. You will be given a choice to make in order to win some money. The amount of money earned depends on the choice made by you and the choice made by the other participant. On top of the money earned according to the choices, you will each receive £${experimentSettings.config.showUpFee} for answering questions about yourself and your experience making the choices. Note that payment is conditional on you completing the study.</p>
 
         <p>
-            Please ensure that you set this page to fullscreen (press F11 on PC or Control + Command + F on Mac).<br><br>
-            Please ensure there are no distractions. <strong>This is a multiplayer game, thereby, it is best for you and the other participant that you keep at the task at hand and do not do anything else. Notably, this will ensure you do not have to wait too long for the other participant to make their decision. </strong> <br><br>
-            <strong>Please be aware that if you leave or refresh this page it will end the experiment and you will not receive your payment. </strong>
+            Please ensure that you set this page to fullscreen (press F11 on PC or Control + Shift + F on Mac).<br><br>
+            Please ensure there are no distractions. <strong>This is a multiplayer game happening in real time, thereby, it is best for you and the other participant that you keep at the task at hand and do not do anything else. Notably, this will ensure you do not have to wait too long for the other participant to make their decision. </strong> <br><br>
+            Please ensure the sound is working on your computer. Bell sounds will occur to signal that a certain phase of the study has started. <br><br>
+            <strong>Please be aware that if you leave or refresh this page it will end the study and you will not receive your payment. </strong>
         </p>
 
         <p>
@@ -124,14 +125,15 @@ function createInstructions(experimentSettings){
                 <li>Answering a second series of questions.</li>
             </ol>
         </p>`;
-    if(experimentSettings.condition.includes("A")){ //Counterbalancing
+    //Counterbalancing
+    if(experimentSettings.condition.includes("A")){ //condition A
         instructionHTML += `
             <p>
                 You (and the other participant) can make one of two choices: <b>A or B</b>.
                 <ul>
                     <li>If you <b>both choose A</b>, you will earn £${experimentSettings.config.payoffs.r} and the other participant will earn £${experimentSettings.config.payoffs.r} as well.</li>
-                    <li>If <b>you choose A and the other participant choose B</b>, you will earn £${experimentSettings.config.payoffs.s} and the other participant will earn £${experimentSettings.config.payoffs.t}.</li>
-                    <li>If <b>you choose B and the other participant choose A</b>, you will earn £${experimentSettings.config.payoffs.t} and the other participant will earn £${experimentSettings.config.payoffs.s}.</li>
+                    <li>If <b>you choose A and the other participant chooses B</b>, you will earn £${experimentSettings.config.payoffs.s} and the other participant will earn £${experimentSettings.config.payoffs.t}.</li>
+                    <li>If <b>you choose B and the other participant chooses A</b>, you will earn £${experimentSettings.config.payoffs.t} and the other participant will earn £${experimentSettings.config.payoffs.s}.</li>
                     <li>If you <b>both choose B</b>, you will earn £${experimentSettings.config.payoffs.p} and the other participant will earn £${experimentSettings.config.payoffs.p} as well.</li>
                 </ul>
             </p>
@@ -153,8 +155,8 @@ function createInstructions(experimentSettings){
                 You (and the other participant) can make one of two choices: <b>A or B</b>.
                 <ul>
                     <li>If you <b>both choose A</b>, you will earn £${experimentSettings.config.payoffs.p} and the other participant will earn £${experimentSettings.config.payoffs.p} as well.</li>
-                    <li>If <b>you choose A and the other participant choose B</b>, you will earn £${experimentSettings.config.payoffs.t} and the other participant will earn £${experimentSettings.config.payoffs.s}.</li>
-                    <li>If <b>you choose B and the other participant choose A</b>, you will earn £${experimentSettings.config.payoffs.s} and the other participant will earn £${experimentSettings.config.payoffs.t}.</li>
+                    <li>If <b>you choose A and the other participant chooses B</b>, you will earn £${experimentSettings.config.payoffs.t} and the other participant will earn £${experimentSettings.config.payoffs.s}.</li>
+                    <li>If <b>you choose B and the other participant chooses A</b>, you will earn £${experimentSettings.config.payoffs.s} and the other participant will earn £${experimentSettings.config.payoffs.t}.</li>
                     <li>If you <b>both choose B</b>, you will earn £${experimentSettings.config.payoffs.r} and the other participant will earn £${experimentSettings.config.payoffs.r} as well.</li>
                 </ul>
             </p>
@@ -172,7 +174,7 @@ function createInstructions(experimentSettings){
         `;
     }
     instructionHTML += `
-        <p>Your choice is real, the other participant is real, and the amounts earned are real. The outcome of the choices will be final. You will not be able to participate in the study again, and you will not be paired with the other participant for another choice after this choice.</p>
+        <p>Your choice is real, the other participant is real, and the amounts earned are real. The outcome of the choices will be final. You cannot communicate with the other participant, you will not be able to participate in the study again, and you will not be paired with the other participant for another choice after this choice.</p>
     </div>
     `;
 
@@ -224,7 +226,7 @@ function createExperiment(instructionHTML, experimentSettings){
     var trueOrFalseResponseOptions = ["true", "false"];
     var comprehensionQuestions = {
         type: 'leftAligned-survey-multi-choice',
-        preamble: '<p> These are comprehension questions about the instructions that you must answer correctly in order to progress. If you answer them incorrectly, you will be presented with the questions again. You can click the “Show Instructions” button on the top right of the screen to show the instructions again. </p>',
+        preamble: '<p> These are comprehension questions about the instructions that you must answer correctly in order to progress. If you answer them incorrectly, you will be presented with the questions again. <strong>You can click the “Show Instructions” button on the top right of the screen to show the instructions again.</strong> </p>',
         data: {trialInformationType: "instructions_comprehension"},
         questions: [
             {
@@ -263,7 +265,7 @@ function createExperiment(instructionHTML, experimentSettings){
                 horizontal: true
             },
             {
-                prompt: "I can directly communicate with the other participant.",
+                prompt: "You can directly communicate with the other participant.",
                 name: "instructionsComprehension6",
                 options: trueOrFalseResponseOptions,
                 required: true,
@@ -294,7 +296,6 @@ function createExperiment(instructionHTML, experimentSettings){
                 answers.instructionsComprehension4 === "true" &&
                 answers.instructionsComprehension5 === "false" &&
                 answers.instructionsComprehension6 === "false"
-
             ){
                 return false; //stop the loop
             } else {
@@ -341,7 +342,7 @@ function createExperiment(instructionHTML, experimentSettings){
     var questionB2 = {
       type: 'survey-text',
       questions: [
-        {prompt: "Please briefly explain your reasoning for your answer to the previous question: <br> <i>What choice do you think the other participant will make?</i>", name: "explainB1", rows: 5, columns: 40, required: true}
+        {prompt: "Please <strong>briefly explain your reasoning</strong> for your answer to the previous question: <br> <i>What choice do you think the other participant will make?</i>", name: "explainB1", rows: 5, columns: 40, required: true}
       ],
     };
     timeline.push(questionB2);
@@ -359,7 +360,7 @@ function createExperiment(instructionHTML, experimentSettings){
     var questionB4 = {
       type: 'survey-text',
       questions: [
-        {prompt: "Please briefly explain your reasoning for your answer to the previous question: <br> <i>What do you think the other participant <b>thinks you chose</b>?</i>", name: "explainB3", rows: 5, columns: 40, required: true}
+        {prompt: "Please <strong>briefly explain your reasoning</strong> for your answer to the previous question: <br> <i>What do you think the other participant <b>thinks you chose</b>?</i>", name: "explainB3", rows: 5, columns: 40, required: true}
       ],
     };
     timeline.push(questionB4);
@@ -377,7 +378,7 @@ function createExperiment(instructionHTML, experimentSettings){
     var questionB6 = {
       type: 'survey-text',
       questions: [
-        {prompt: "Please briefly explain your reasoning for your answer to the previous question: <br> <i>If the other participant were able to see your choice before making theirs, what do you think they would choose?</i>", name: "explainB5", rows: 5, columns: 40, required: true}
+        {prompt: "Please <strong>briefly explain your reasoning</strong> for your answer to the previous question: <br> <i>If the other participant were able to see your choice before making theirs, what do you think they would choose?</i>", name: "explainB5", rows: 5, columns: 40, required: true}
       ],
     };
     timeline.push(questionB6);
@@ -432,7 +433,7 @@ function createExperiment(instructionHTML, experimentSettings){
 
     var questionC3 = {
         type: 'slider-with-value',
-        stimulus: '<p> If you were to play again with this person, which choice would you make? </p>',
+        stimulus: '<p> If you were to play again with this exact same person, which choice would you make? </p>',
         labels: ['Option A', "I don't know", 'Option B'],
         require_movement: true,
         slider_width: 400,
@@ -579,7 +580,7 @@ function createExperiment(instructionHTML, experimentSettings){
     timeline.push(commentsQuestion);
 
     //Debrief:
-    var debriefStim = "<h3>Thank you for your participation.</h3><p>The aim of this study is to investigate strategic decision-making in two player scenarios. Namely, we are interested in people's choices between a cooperative and a self-interested options, how they think about their choice, how they think about the other participant's choice, and how they think about the choice making process.</p><p>This was investigated using a single-shot (you only played once), normal form (both participants played simultaneously), double-choice (you chose between two options) <a href='https://en.wikipedia.org/wiki/Prisoner%27s_dilemma' target='_blank'>prisoner's dilemma.</a></p><p> One of the options you were presented with was a cooperative choice (It could lead to a better outcome for both you and the other participant, but if the other participant) and the other option was a self-interest choice (it would generally lead to a better outcome for you, but a worse one for the other participant).</p><p>This is a control condition to determine baseline levels of cooperation and thoughts about the decision-making. The next step will involve investigating a <a href='https://journals.sagepub.com/doi/abs/10.1177/1043463119885102' target='_blank'>theory about cooperation in social dilemmas like this one.</a></p>";
+    var debriefStim = "<h3>Thank you for your participation.</h3><p>The aim of this study is to investigate strategic decision-making in two player scenarios. Namely, we are interested in people's choices between a cooperative and a self-interested options, how they think about their choice, how they think about the other participant's choice, and how they think about the choice making process.</p><p>This was investigated using a single-shot (you only played once), normal form (both participants played simultaneously), double-choice (you chose between two options) <a href='https://en.wikipedia.org/wiki/Prisoner%27s_dilemma' target='_blank'>prisoner's dilemma.</a></p><p> One of the options you were presented with was a cooperative choice (It could lead to a better outcome for both you and the other participant if they also cooperate) and the other option was a self-interest choice (it would generally lead to a better outcome for you, but a worse one for the other participant).</p><p>This is a control condition to determine baseline levels of cooperation and thoughts about the decision-making process. The next step will involve investigating this <a href='https://journals.sagepub.com/doi/abs/10.1177/1043463119885102' target='_blank'>theory about cooperation in social dilemmas (such as prisoner's dilemmas).</a></p>";
     var debrief = {
         type: 'debrief',
         stimulus: debriefStim,

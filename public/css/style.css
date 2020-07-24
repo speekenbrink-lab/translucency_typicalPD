@@ -64,6 +64,10 @@ body {
     padding: 15px;
 }
 
+#instructions-wrap th {
+    background-color: lightgrey;
+}
+
 /* The slider itself */
 #jspsych-html-slider-response-response {
     -webkit-appearance: none;  /* Override default CSS styles */

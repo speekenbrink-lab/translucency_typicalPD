@@ -12,12 +12,12 @@ config.partNB = 20;
 config.conditions = ["A", "B"];
 // The number of rooms will be config.partNB/(2*config.conditions.length)
 config.payoffs = {
-    t: '0.7',
-    r: '0.5',
-    p: '0.2',
-    s: '0.1'
+    t: '0.70',
+    r: '0.50',
+    p: '0.20',
+    s: '0.10'
 };
-config.showUpFee = '1';
+config.showUpFee = '1.00';
 
 //Export the module:
 module.exports = {
