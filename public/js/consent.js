@@ -10,6 +10,11 @@ if (
     window.location = "redirect.html";
 }
 
+//Preventing right click:
+document.addEventListener("contextmenu", function(e){
+  e.preventDefault();
+}, false);
+
 //Function that activates when the button is clicked...
 function validateConsent(){
 
