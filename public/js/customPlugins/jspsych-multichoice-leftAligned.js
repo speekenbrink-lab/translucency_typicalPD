@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------*/
 /*
-This is a custom jspsych pluging to have the text of
-the survey-multi-choice pluging be leftAligned.
+This is a custom jsPsych plugin to have the text of
+the survey-multi-choice plugin be leftAligned.
 by Samuel Dupret
 */
 /*----------------------------------------------------------------------------*/

@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------------*/
 /*
-This is a custom jspsych pluging to have the value of the slider bar appear
+This is a custom jsPsych plugin to have the value of the slider bar appear
 in an output
 by Samuel Dupret
 */

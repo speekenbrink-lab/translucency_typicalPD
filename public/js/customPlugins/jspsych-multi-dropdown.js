@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------------*/
 /*
-This is a custom jspsych pluging to have multiple dropdowns.
+This is a custom jsPsych plugin to have multiple dropdowns.
 by Samuel Dupret
 Based on the 'survey' plugins for jsPsych
 */
@@ -113,7 +113,7 @@ jsPsych.plugins['multi-dropdown'] = (function() {
       var required_attr = question.required ? 'required' : '';
 
       // create dropdown
-      html += '<select name="' + question.name + '" id="multi-dropdown-' + i + '"' + required_attr + '>'
+      html += '<select name="' + question.name + '" id="multi-dropdown-' + i + '"' + required_attr + '>';
 
       //Create each option for the dropdown:
       for (var j = 0; j < question.options.length; j++) {

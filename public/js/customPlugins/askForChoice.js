@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------------*/
 /*
-This is a custom jspsych pluging that asks for participants' choices only after each player is ready.
+This is a custom jsPsych plugin that asks for participants' choices only after each player is ready.
 by Samuel Dupret
 */
 /*----------------------------------------------------------------------------*/

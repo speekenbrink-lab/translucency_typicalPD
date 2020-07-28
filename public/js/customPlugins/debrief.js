@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------------*/
 /*
-This is a custom jspsych pluging that shows participants the debrief.
+This is a custom jsPsych plugin that shows participants the debrief.
 by Samuel Dupret
 */
 /*----------------------------------------------------------------------------*/

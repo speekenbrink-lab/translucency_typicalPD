@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------------*/
 /*
-This is a custom jspsych pluging to reveal the results of a Prisoner's Dilemma.
+This is a custom jspPsych plugin to reveal the results of a Prisoner's Dilemma.
 It waits for players to have both given their response before showing the results.
 by Samuel Dupret
 */

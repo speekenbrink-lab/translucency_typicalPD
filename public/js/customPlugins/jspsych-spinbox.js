@@ -1,5 +1,5 @@
 /*
-This is a custom jsPsych pluging to have a spinbox.
+This is a custom jsPsych plugin to have a spinbox.
 by Samuel Dupret
 Based on the 'survey' plugins for jsPsych
 */
