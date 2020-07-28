@@ -65,6 +65,11 @@ body {
 }
 
 #instructions-wrap th {
+    background-color: grey;
+}
+
+/* Square about their payoff */
+#instructions-wrap .theyReceive {
     background-color: lightgrey;
 }
 

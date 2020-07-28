@@ -26,6 +26,23 @@ document.addEventListener("contextmenu", function(e){
 //Start collecting data:
 var fullUserData = {};
 
+//Add screen information to the data
+//Function to get screen information
+function browserInfo() {
+  return info = {
+    'browser': navigator.userAgent,
+    'screen': {
+      'availWidth': window.screen.availWidth,
+      'availHeight': window.screen.availHeight,
+      'width': window.screen.width,
+      'height': window.screen.height
+    }
+  };
+}
+//Add it to the data
+fullUserData.browserAndScreenInfo = browserInfo();
+
+
 //Connect to the app:
 // const socket = io();
 
@@ -57,7 +74,7 @@ document.getElementById("prolificForm").addEventListener("submit", function(e){
             };
 
             //Set the placeholder for when participants are waiting to the page:
-            document.getElementById("jspsych_target").innerHTML = "<h3>Please wait for another participant to join the room. This should not take long.</h3><p>A bell sound will play when another player has joined the room and the experiment is ready to begin.</p>";
+            document.getElementById("jspsych_target").innerHTML = "<h3>Please wait for another participant to join the room. This should not take long.</h3><p>A bell sound will play when another player has joined the room and the experiment is ready to begin.</p><br><br><p>Please contact the researcher Samuel Dupret (samuel.dupret.19@ucl.ac.uk) if you encountered a problem.</p>";
 
             //Add the id to the data:
             fullUserData.prolificId = prolificId;
@@ -144,9 +161,9 @@ function createInstructions(experimentSettings){
                 <tr><th colspan="2" rowspan="2"><th colspan="2">Their decision
                 <tr><th>A<th>B
                 <tr><th rowspan="4">Your decision<th rowspan="2">A<td>You receive: £${experimentSettings.config.payoffs.r}<td>You receive: £${experimentSettings.config.payoffs.s}
-                <tr><td>They receive: £${experimentSettings.config.payoffs.r}<td>They receive: £${experimentSettings.config.payoffs.t}
+                <tr><td class="theyReceive">They receive: £${experimentSettings.config.payoffs.r}<td class="theyReceive">They receive: £${experimentSettings.config.payoffs.t}
                 <tr><th rowspan="2">B<td>You receive: £${experimentSettings.config.payoffs.t}<td>You receive: £${experimentSettings.config.payoffs.p}
-                <tr><td>They receive: £${experimentSettings.config.payoffs.s}<td>They receive: £${experimentSettings.config.payoffs.p}
+                <tr><td class="theyReceive">They receive: £${experimentSettings.config.payoffs.s}<td class="theyReceive">They receive: £${experimentSettings.config.payoffs.p}
             </table>
         `;
     }else{ // condition B
@@ -167,9 +184,9 @@ function createInstructions(experimentSettings){
                 <tr><th colspan="2" rowspan="2"><th colspan="2">Their decision
                 <tr><th>A<th>B
                 <tr><th rowspan="4">Your decision<th rowspan="2">A<td>You receive: £${experimentSettings.config.payoffs.p}<td>You receive: £${experimentSettings.config.payoffs.t}
-                <tr><td>They receive: £${experimentSettings.config.payoffs.p}<td>They receive: £${experimentSettings.config.payoffs.s}
+                <tr><td class="theyReceive">They receive: £${experimentSettings.config.payoffs.p}<td class="theyReceive">They receive: £${experimentSettings.config.payoffs.s}
                 <tr><th rowspan="2">B<td>You receive: £${experimentSettings.config.payoffs.s}<td>You receive: £${experimentSettings.config.payoffs.r}
-                <tr><td>They receive: £${experimentSettings.config.payoffs.t}<td>They receive: £${experimentSettings.config.payoffs.r}
+                <tr><td class="theyReceive">They receive: £${experimentSettings.config.payoffs.t}<td class="theyReceive">They receive: £${experimentSettings.config.payoffs.r}
             </table>
         `;
     }
@@ -299,6 +316,7 @@ function createExperiment(instructionHTML, experimentSettings){
             ){
                 return false; //stop the loop
             } else {
+                alert("You made a mistake. Please remember that you can consult the instructions by clicking on the Show Instructions button in the top right of the page. The questions will show again when you close this alert.");
                 return true; //loop again
             }
         }
@@ -580,7 +598,7 @@ function createExperiment(instructionHTML, experimentSettings){
     timeline.push(commentsQuestion);
 
     //Debrief:
-    var debriefStim = "<h3>Thank you for your participation.</h3><p>The aim of this study is to investigate strategic decision-making in two player scenarios. Namely, we are interested in people's choices between a cooperative and a self-interested options, how they think about their choice, how they think about the other participant's choice, and how they think about the choice making process.</p><p>This was investigated using a single-shot (you only played once), normal form (both participants played simultaneously), double-choice (you chose between two options) <a href='https://en.wikipedia.org/wiki/Prisoner%27s_dilemma' target='_blank'>prisoner's dilemma.</a></p><p> One of the options you were presented with was a cooperative choice (It could lead to a better outcome for both you and the other participant if they also cooperate) and the other option was a self-interest choice (it would generally lead to a better outcome for you, but a worse one for the other participant).</p><p>This is a control condition to determine baseline levels of cooperation and thoughts about the decision-making process. The next step will involve investigating this <a href='https://journals.sagepub.com/doi/abs/10.1177/1043463119885102' target='_blank'>theory about cooperation in social dilemmas (such as prisoner's dilemmas).</a></p>";
+    var debriefStim = "<h3>Thank you for your participation.</h3><p><strong>Make sure to click the 'Continue to Prolific for your payment' button at the end of this page or your data will not be saved and you will not receive your payment.</strong></p><p>The aim of this study is to investigate strategic decision-making in two player scenarios. Namely, we are interested in people's choices between a cooperative and a self-interested options, how they think about their choice, how they think about the other participant's choice, and how they think about the choice making process.</p><p>This was investigated using a single-shot (you only played once), normal form (both participants played simultaneously), double-choice (you chose between two options) <a href='https://en.wikipedia.org/wiki/Prisoner%27s_dilemma' target='_blank'>prisoner's dilemma.</a></p><p> One of the options you were presented with was a cooperative choice (It could lead to a better outcome for both you and the other participant if they also cooperate) and the other option was a self-interest choice (it would generally lead to a better outcome for you, but a worse one for the other participant).</p><p>This is a control condition to determine baseline levels of cooperation and thoughts about the decision-making process. The next step will involve investigating this <a href='https://journals.sagepub.com/doi/abs/10.1177/1043463119885102' target='_blank'>theory about cooperation in social dilemmas (such as prisoner's dilemmas).</a></p>";
     var debrief = {
         type: 'debrief',
         stimulus: debriefStim,
@@ -605,14 +623,13 @@ function createExperiment(instructionHTML, experimentSettings){
         //Send Data:
         socket.emit('Write Data', fullUserData);
 
-        //Redirect to back to prolific
         //Take out the warning before unload
-        // Warning before leaving the page (back button, or outgoing link):
         window.onbeforeunload = function() {
             return undefined;
         };
-        // TODO: Put prolific link
-        window.location = String("https://www.google.co.uk")
+
+        //Redirect to back to prolific
+        window.location = String("https://app.prolific.co/submissions/complete?cc=49DC9373")
       }
     });
 }
