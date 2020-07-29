@@ -8,7 +8,7 @@ config.local_server = "http://localhost:" + config.port;
 config.remote_server = "https://palsws07.psychlangsci.ucl.ac.uk";
 
 //Number of participants, needs to be a multiple of 4
-config.partNB = 20;
+config.partNB = 32;
 config.conditions = ["TA", "TB"];
 // The number of rooms will be config.partNB/(2*config.conditions.length)
 config.payoffs = {
