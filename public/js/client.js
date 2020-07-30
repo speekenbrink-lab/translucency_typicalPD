@@ -125,7 +125,7 @@ function createInstructions(experimentSettings){
         <p>Welcome to this study and thank you for participation. You have been paired with another anonymous participant. You will be given a choice to make in order to win some money. The amount of money earned depends on the choice made by you and the choice made by the other participant. On top of the money earned according to the choices, you will each receive £${experimentSettings.config.showUpFee} for answering questions about yourself and your experience making the choices. Note that payment is conditional on you completing the study.</p>
 
         <p>
-            Please ensure that you set this page to fullscreen (press F11 on PC or go to "view>enter full screen" on Mac).<br><br>
+            Please ensure that you set this page to fullscreen (press F11 on PC or go to &quot;view&gt;enter full screen&quot; on Mac).<br><br>
             Please ensure there are no distractions. <strong>This is a multiplayer game happening in real time, thereby, it is best for you and the other participant that you keep at the task at hand and do not do anything else. Notably, this will ensure you do not have to wait too long for the other participant to make their decision. </strong> <br><br>
             Please ensure the sound is working on your computer. Bell sounds will occur to signal that a certain phase of the study has started. <br><br>
             <strong>Please be aware that if you leave or refresh this page it will end the study and you will not receive your payment. </strong>
