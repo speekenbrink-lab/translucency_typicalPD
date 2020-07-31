@@ -194,9 +194,9 @@ jsPsych.plugins["showResults"] = (function() {
       response.button = choice;
       response.rt = rt;
 
-      // // after a valid response, the stimulus will have the CSS class 'responded'
-      // // which can be used to provide visual feedback that a response was recorded
-      // display_element.querySelector('#jspsych-html-button-response-stimulus').className += ' responded';
+      // after a valid response, the stimulus will have the CSS class 'responded'
+      // which can be used to provide visual feedback that a response was recorded
+      display_element.querySelector('#jspsych-html-button-response-stimulus').className += ' responded';
 
       // disable all the buttons after a response
       var btns = document.querySelectorAll('.jspsych-html-button-response-button button');

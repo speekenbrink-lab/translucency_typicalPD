@@ -284,16 +284,6 @@ io.on('connection', function(socket){
 
             //Log this information
             console.log(user.prolificId, "made their final choice.");
-
-            //Get the other player
-            var otherPlayer = getOtherPlayer(user);
-            //if other player exists (they could have dropped, if so the experiment will probably only advance if there is a timeout or if a new payer joins)
-            if(otherPlayer){
-                if(otherPlayer.isWaitingForResults){
-                    //If the other player is waiting for the results, send them the results
-                    sendResuts(otherPlayer, user);
-                }
-            }
         });
 
         //When the user is waiting for the results:
@@ -306,11 +296,8 @@ io.on('connection', function(socket){
             //if other player exists (they could have dropped, if so the experiment will probably only advance if there is a timeout or if a new payer joins)
             if(otherPlayer){
                 if(otherPlayer.isWaitingForResults){
-                    //If the other player is also waiting for the results, send results to both
+                    //If the other player is also waiting for the results, send results to both - they can only see the results when they are both waiting for the results because their last step is the translucency choice that happens just before.
                     sendResuts(otherPlayer, user);
-                    sendResuts(user, otherPlayer);
-                }else if(otherPlayer.finalChoice !== null){
-                    //If the other player made their choice but isn't at the waiting stage, send results to self
                     sendResuts(user, otherPlayer);
                 }
             }
