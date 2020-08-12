@@ -126,7 +126,7 @@ jsPsych.plugins["showResults"] = (function() {
     //Start a timeout that will tell the server that this user has waited for too long
     var longWaitTimeout = setTimeout(function(){
         socket.emit('waited too long', 'results');
-    }, 180000); //Need to hardcode the time (currently, 3min)
+    }, 240000); //Need to hardcode the time (currently, 4min)
 
     //Saving the display style of the element (because I don't know it)
     var savedDisplayStyle = display_element.querySelector('#jspsych-html-button-response-btngroup').style.display;
