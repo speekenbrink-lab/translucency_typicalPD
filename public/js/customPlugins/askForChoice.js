@@ -92,7 +92,7 @@ jsPsych.plugins["askForChoice"] = (function() {
 /* -----------------------------Modification--------------------------------- */
 
     //Add a prompt to have particpants wait:
-    html += '<div id="wait-prompt"><p>Please wait whilst the other participant finishes reading the instructions so that you can both start the experiment together.</p><p>This should not take long.</p><p>Please do not refresh or leave the experiment or we will not be able to pay you.</p><p>A bell sound will play when the experiment is ready to continue.</p></div>';
+    html += '<div id="wait-prompt"><p>Please wait whilst the other participant finishes reading the instructions so that you can both start the experiment together.</p><p>This should not take more than a few minutes.</p><p>Please do not refresh or leave the experiment or we will not be able to pay you.</p><p>A bell sound will play when the experiment is ready to continue.</p></div>';
 
     //display buttons
     var buttons = [];

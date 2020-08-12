@@ -363,6 +363,13 @@ function createExperiment(instructionHTML, experimentSettings){
                 ],
                 required: true,
                 horizontal: true
+            },
+            {
+                prompt: "If you made a choice that could be detected, and the other participant detects your choice, can they then make a new choice?",
+                name: "instructionsComprehension9",
+                options: trueOrFalseResponseOptions,
+                required: true,
+                horizontal: true
             }
         ],
     };
@@ -412,7 +419,8 @@ function createExperiment(instructionHTML, experimentSettings){
                 answers.instructionsComprehension5 === "false" &&
                 answers.instructionsComprehension6 === "false" &&
                 answers.instructionsComprehension7 === instructionsConditional7 &&
-                answers.instructionsComprehension8 === instructionsConditional8
+                answers.instructionsComprehension8 === instructionsConditional8 &&
+                answers.instructionsComprehension9 === "true"
             ){
                 return false; //stop the loop
             } else {
@@ -430,8 +438,15 @@ function createExperiment(instructionHTML, experimentSettings){
     let startTableExtras = instructionHTML.search("<table"); //get the starting index of the table+
     let endTableExtras = instructionHTML.search("The other participant will not be told if their choice was revealed to you or not."); //get the  index of the end of the table+ (starts at "0")
     endTableExtras += 95; //add to include the other elements of the string
-    //Extract this part from the instructions
+    //Extract this part from the instructions for the choice text
     let tableExtrasHTML = instructionHTML.slice(startTableExtras, endTableExtras);
+
+    //We also need to extract just the table for the translucency choice
+    let endJustTable = instructionHTML.search("</table>");
+    endJustTable += 8; //add to include the other elements of the string
+    //Grab just the table from the instructions
+    let justTableHTML = instructionHTML.slice(startTableExtras, endJustTable);
+
     //Create the text to present for the choice:
     let choiceHTML = "<div id='instructions-wrap'><p>Please carefully make your choice. This is the choice that will determine (dependent on the other participant's choice) the amount of money you will receive as a bonus reward on top of the money you receive for answering the questions afterwards. The result of your choice will be presented after a few questions.</p><p>Here is a reminder of the possible results according to the choices made. Note that you can consult the instructions at any time by clicking on the button in the top right.</p><br>";
     choiceHTML += tableExtrasHTML;
@@ -526,7 +541,7 @@ function createExperiment(instructionHTML, experimentSettings){
     //Translucency consequences and choice:
     var translucentChoice_trial = {
         type: 'askForTranslucentChoice',
-        stimulus: tableExtrasHTML + "<p>Please make your choice</p>", //reuse elements from the choice stimulus
+        stimulus: justTableHTML, //reuse the table from the instructions
         choices: ['Option A', 'Option B'],
         on_finish: function(data){
             socket.emit('player made translucency choice', data.button_pressed);
@@ -537,7 +552,7 @@ function createExperiment(instructionHTML, experimentSettings){
     //wait/Reveal:
     var waitRevealResults = {
         type: 'showResults',
-        stimulus: '<p>Please wait whilst the server calculates the results.</p><p>This should not take long.</p><p>Please do not refresh or leave the experiment or we will not be able to pay you.</p><p>A bell sound will play when the experiment is ready to continue.</p>',
+        stimulus: '<p>Please wait for the other participant to finish the previous sections.</p><p>This should not take more than a few minutes.</p><p>Please do not refresh or leave the experiment or we will not be able to pay you.</p><p>A bell sound will play when the experiment is ready to continue.</p>',
         choices: ['Continue']
     };
     timeline.push(waitRevealResults);
@@ -545,13 +560,22 @@ function createExperiment(instructionHTML, experimentSettings){
     //Questions C:
     var questionC1 = {
         type: 'slider-with-value',
-        stimulus: '<p> When the other participant made their choice, do you think they knew which choice you made? </p>',
+        stimulus: '<p> Do you think that the other participant detected your initial choice before making their final choice? </p>',
         labels: ['No', "I don't know", 'Yes'],
         require_movement: true,
         slider_width: 400,
         step: 1
     };
     timeline.push(questionC1);
+
+    //Adding a question to make sure I can understand what participants where thinking if they gave me a weird answer to the previous one.
+    var questionC1_5 = {
+      type: 'survey-text',
+      questions: [
+        {prompt: "Please <strong>briefly explain your reasoning</strong> for your answer to the previous question: <br> <i>Do you think the other participant detected your initial choice?</i>", name: "explainB5", rows: 5, columns: 40, required: true}
+      ],
+    };
+    timeline.push(questionC1_5);
 
     var questionC2 = {
       type: 'survey-text',

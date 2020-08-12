@@ -319,17 +319,26 @@ io.on('connection', function(socket){
             user.timeout = location;
             //Get the other player...
             var otherPlayer = getOtherPlayer(user);
-            //if other player does NOT exists (they could have dropped)
+            //if other player does NOT exists (they could have dropped)...
             if(!otherPlayer){
-                //make otherPlayer a new object
+                //...make otherPlayer a new object
                 otherPlayer = {};
             }
 
-            //Randomly make a choice for them
-            var possibleChoices = ["A", "B"];
-            var randomChoice = choice(possibleChoices);
-            otherPlayer.initialChoice = randomChoice;
-            otherPlayer.finalChoice = randomChoice;
+            //Only assign choices if these have not been made before, otherwise this will lead to strange overrides.
+
+            //If both choices are null...
+            if (otherPlayer.initialChoice === null && otherPlayer.finalChoice === null) {
+                //...Randomly make a choice for them
+                var possibleChoices = ["A", "B"];
+                var randomChoice = choice(possibleChoices);
+                otherPlayer.initialChoice = randomChoice;
+                otherPlayer.finalChoice = randomChoice;
+            } else if (otherPlayer.initialChoice !== null && otherPlayer.finalChoice === null) {
+                //If the initial choice is already made, set the final choice to the initial choice
+                otherPlayer.finalChoice = otherPlayer.initialChoice;
+            }
+
             //This will allow the current user to continue the experiment whilst still allowing the other player to complete the experiment if he want to.
 
             //If the timeout occured as they wait to make their choice...

@@ -89,7 +89,7 @@ jsPsych.plugins["askForTranslucentChoice"] = (function() {
 /* -----------------------------Modification--------------------------------- */
 
     // For now, set the display stimulus with this wait prompt
-    var html = '<div id="jspsych-html-button-response-stimulus"><p>Please wait whilst the server calculates the detection.</p><p>This should not take long.</p><p>Please do not refresh or leave the experiment or we will not be able to pay you.</p><p>A bell sound will play when the experiment is ready to continue.</p></div>';
+    var html = '<div id="jspsych-html-button-response-stimulus"><p>Please for the participant to make their initial choice.</p><p>This should not take more than a few minutes.</p><p>Please do not refresh or leave the experiment or we will not be able to pay you.</p><p>A bell sound will play when the experiment is ready to continue.</p></div>';
 
     //display buttons
     var buttons = [];
@@ -131,7 +131,7 @@ jsPsych.plugins["askForTranslucentChoice"] = (function() {
     //Start a timeout that will tell the server that this user has waited for too long
     var longWaitTimeout = setTimeout(function(){
         socket.emit('waited too long', 'choice');
-    }, 120000); //Need to hardcode the time (currently, 2min)
+    }, 180000); //Need to hardcode the time (currently, 3min)
 
     //Hide the A and B buttons
     display_element.querySelector('#jspsych-html-button-response-btngroup').style.display = "none";
@@ -161,10 +161,12 @@ jsPsych.plugins["askForTranslucentChoice"] = (function() {
 
             <p><strong>Please choose again between options A and B.</strong></p>
             <p>This is the choice that will determine (dependent on the other participant's choice) the amount of money you will receive as a bonus reward on top of the money you receive for answering the questions afterwards.</p>
-            <p>Here is a reminder of the possible results according to the choices made. Note that you can consult the instructions at any time by clicking on the button in the top right.</p><br>
+            <p>Here is a reminder of the possible results according to the choices made.</p><br>
             `;
 
             stimulusHTML += trial.stimulus;
+
+            stimulusHTML += "<p><strong>This is your final choice. It will not be detected by the other participant.</strong></p><p>Please make your choice</p>";
 
             //Show the A and B buttons
             display_element.querySelector('#jspsych-html-button-response-btngroup').style.display = "inline-block";
