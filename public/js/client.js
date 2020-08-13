@@ -765,8 +765,7 @@ function createExperiment(instructionHTML, experimentSettings){
         };
 
         //Redirect to back to prolific
-        // window.location = String("https://app.prolific.co/submissions/complete?cc=49DC9373")
-        window.location = String("https://www.google.co.uk")
+        window.location = String("https://app.prolific.co/submissions/complete?cc=49DC9373")
       }
     });
 }
