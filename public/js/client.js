@@ -512,7 +512,7 @@ function createExperiment(instructionHTML, experimentSettings){
     var questionB6 = {
       type: 'survey-text',
       questions: [
-        {prompt: "Please <strong>briefly explain your reasoning</strong> for your answer to the previous question: <br> <i>If the other participant were able to see your choice before making theirs, what do you think they would choose?</i>", name: "explainB5", rows: 5, columns: 40, required: true}
+        {prompt: "Please <strong>briefly explain your reasoning</strong> for your answer to the previous question: <br> <i>If the other participant detects your choice, what do you think they would choose?</i>", name: "explainB5", rows: 5, columns: 40, required: true}
       ],
     };
     timeline.push(questionB6);
@@ -572,7 +572,7 @@ function createExperiment(instructionHTML, experimentSettings){
     var questionC1_5 = {
       type: 'survey-text',
       questions: [
-        {prompt: "Please <strong>briefly explain your reasoning</strong> for your answer to the previous question: <br> <i>Do you think the other participant detected your initial choice?</i>", name: "explainB5", rows: 5, columns: 40, required: true}
+        {prompt: "Please <strong>briefly explain your reasoning</strong> for your answer to the previous question: <br> <i>Do you think that the other participant detected your initial choice before making their final choice?</i>", name: "explainB5", rows: 5, columns: 40, required: true}
       ],
     };
     timeline.push(questionC1_5);

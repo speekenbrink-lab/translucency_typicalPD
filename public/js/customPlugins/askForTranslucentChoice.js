@@ -89,7 +89,7 @@ jsPsych.plugins["askForTranslucentChoice"] = (function() {
 /* -----------------------------Modification--------------------------------- */
 
     // For now, set the display stimulus with this wait prompt
-    var html = '<div id="jspsych-html-button-response-stimulus"><p>Please for the participant to make their initial choice.</p><p>This should not take more than a few minutes.</p><p>Please do not refresh or leave the experiment or we will not be able to pay you.</p><p>A bell sound will play when the experiment is ready to continue.</p></div>';
+    var html = '<div id="jspsych-html-button-response-stimulus"><p>Please wait for the participant to make their initial choice.</p><p>This should not take more than a few minutes.</p><p>Please do not refresh or leave the experiment or we will not be able to pay you.</p><p>A bell sound will play when the experiment is ready to continue.</p></div>';
 
     //display buttons
     var buttons = [];
