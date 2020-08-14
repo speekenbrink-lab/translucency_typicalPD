@@ -52,18 +52,29 @@ app.get(config.path + '/js/global.js', function(req, res){
 -                                Config and Users                              -
 ------------------------------------------------------------------------------*/
 
-//getting the rooms:
-var tempRooms = [], newRoomName;
-for (var i = 0; i < config.partNB/(2*config.conditions.length); i++) {
-    for (var ii = 0; ii < config.conditions.length; ii++) {
-        newRoomName = config.conditions[ii] + i;
-        tempRooms.push(newRoomName);
-    }
-}
+// //getting the rooms:
+// var tempRooms = [], newRoomName;
+// for (var i = 0; i < config.partNB/(2*config.conditions.length); i++) {
+//     for (var ii = 0; ii < config.conditions.length; ii++) {
+//         newRoomName = config.conditions[ii] + i;
+//         tempRooms.push(newRoomName);
+//     }
+// }
+//
+// const partialRooms = [];
+// const fullRooms = [];
+// const emptyRooms = tempRooms;
 
+//New version of making rooms:
 const partialRooms = [];
 const fullRooms = [];
-const emptyRooms = tempRooms;
+const emptyRooms = [
+    "LDAN1", "LDBN1", "LDBN2",
+    "HDAN1", "HDAN2", "HDBN1",
+    "LSAN1", "LSBN1", "LSBN2",
+    "HSAN1", "HSAN2",
+];
+
 
 //Getting the users module:
 const {
@@ -150,6 +161,9 @@ io.on('connection', function(socket){
 
         //If a participant joined a room
         if(joinedRoom){
+            //Console.log this:
+            console.log(prolificId, "has joined room", participantRoom);
+
             //Add the user and room:
             var user = addUser(socket.id, participantRoom, prolificId);
             //Join this user to the room selected:
@@ -196,6 +210,8 @@ io.on('connection', function(socket){
         }else{
             //Participant did no join a room, inform them that the experiment is full
             io.to(socket.id).emit('Rooms are empty');
+            //Console.log this:
+            console.log(prolificId, "could not join a room because no rooms are available anymore.");
         }
 
         //When user is waiting to make their choice:
@@ -269,8 +285,6 @@ io.on('connection', function(socket){
 
         //When the player made their translucent choice
         socket.on('player made translucency choice', function(translucentChoice){
-            //Record that they are no longer waiting to make their choice
-            user.isWaitingToMakeTranslucentChoice = false;
 
             //If their choice was to continue
             if(translucentChoice === "Continue"){
@@ -546,6 +560,9 @@ function giveTranslucencyResults(currentPlayer, otherPlayer){
     currentPlayer.otherInitialChoice = otherPlayer.initialChoice;
     //Update other player's information
     otherPlayer.isDetected = isDetected;
+
+    //Record that they are no longer waiting for translucency information
+    currentPlayer.isWaitingToMakeTranslucentChoice = false;
 
     //Send that html to the user to show them the results
     io.to(currentPlayer.id).emit('ask for translucent choice', detectedChoice);
