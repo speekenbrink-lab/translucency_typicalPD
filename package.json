@@ -9,7 +9,7 @@
   "author": "Samuel Dupret, Maarten Speekenbrink, David Lagnado",
   "license": "MIT",
   "dependencies": {
-    "express": "^4.17.1",
+    "express": "^4.17.3",
     "socket.io": "^2.3.0",
     "uuid": "^8.1.0"
   },
